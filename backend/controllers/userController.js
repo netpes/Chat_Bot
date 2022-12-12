@@ -45,16 +45,14 @@ module.exports = {
     login: (req,res) => {
         const {email, password} = req.body;
         userSchema.findOne({email, password}).then((users) => {
-            res.status(200).json({
-                "true": "true",
-                users: users,
-                this: req.body
-            })
             if (users) {
-            console.log('oh fuck yeah')
-            } else {
-                console.log('null')
+                res.status(200).json({
+                    id: users._id,
+                    role: users.role
+                })
             }
+            console.log(users)
+
             }).catch(
             (error) => {
                 res.status(500).json({
