@@ -6,7 +6,7 @@ module.exports = {
     getAllChats: (req,res) => {
         chatsSchema.find().then((users) => {
             res.status(200).json({
-                users
+               data :req.body.data
             })
         }).catch(
             (error) => {
@@ -42,11 +42,22 @@ module.exports = {
             }
         )
     },
-    updateChat: (req,res) => {
-        const {user, data} = req.body;
-        chatsSchema.updateOne(user, data, function(err, res) {
-            if (err) throw err;
-            console.log("1 document updated");
-        });
+    updateChat: (datatoSave,userId) => {
+        chatsSchema.findOne({user: userId}).then((users) => {
+            if (users) {
+                console.log(users)
+                users.chat = datatoSave
+                console.log(datatoSave)
+                 users.save().then()
+            } else {
+                const chat = new chatsSchema({
+                    user: userId,
+                    chat: datatoSave
+                })
+                chat.save().then();
+            }
+        }).catch((err)=> {
+            console.log(err)
+        })
     }
 }

@@ -39,7 +39,7 @@ export default function AdminChat() {
         event.preventDefault();
         setMes((prev) => [...prev, input]);
         if (input) {
-            socket.emit('chat message', input, Bar, mes);
+            socket.emit('chat message', input, Bar, mes, list[inputRoom.value]);
             inputat.value = " ";
             setInput("  ")
         }

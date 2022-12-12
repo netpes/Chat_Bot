@@ -10,6 +10,7 @@ const users = require('./views/user')
 const multer = require('multer');
 const forms = multer();
 const {getAllUsers} = require('./controllers/server_actions')
+const {updateChat} = require("./controllers/chatController");
 
 
 app.set('views', __dirname + '/views');
@@ -63,7 +64,8 @@ let messageCheck = "";
 // send to anyone:
 io.on('connection', (socket) => {
 
-  socket.on('chat message', (msg, room, datatoSave) => {
+  socket.on('chat message', (msg, room, datatoSave, userId) => {
+      updateChat(datatoSave, userId)
       if(msg === messageCheck){
           console.log("stopped")
       } else {
@@ -71,7 +73,6 @@ io.on('connection', (socket) => {
               socket.broadcast.emit('chat message', msg);
           } else {
               socket.to(room).emit('chat message', msg)
-
           }
           messageCheck = msg;
       }
@@ -89,7 +90,7 @@ io.on('connection', (socket) => {
         getAllUsers().then((list) => {
             socket.emit("chat-list",list)
         }).catch((err)=> {
-            console.log(err)
+            console.log(err + "in chats")
         })
 
 
