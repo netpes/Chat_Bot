@@ -48,6 +48,7 @@ module.exports = {
             if (users) {
                 res.status(200).json({
                     id: users._id,
+                    name: users.name,
                     role: users.role
                 })
             }

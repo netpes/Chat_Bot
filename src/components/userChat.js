@@ -10,15 +10,20 @@ export default function UserChat() {
     const [socket,setSocket] = useState()
     const {userId,setUserId} = useContext(GetData);
     const [Bar,setBar] = useState();
-    //when possible get user id to room
+
 
     const [mes,setMes] = useState([]);
     const inputat = document.getElementById('input');
     // const form = document.getElementById('form');
     const [input,setInput] =useState();
+
+
+
+
     useEffect(() => {
         setSocket(io.connect('http://localhost:2000', { transports : ['websocket']}))
     },[])
+
     useEffect(() => {
         socket?.on('connect', ()=> {
             console.log(userId)
@@ -32,20 +37,17 @@ export default function UserChat() {
         })
     },[socket])
 
+
    function handleSub(event) {
         event.preventDefault();
        setMes((prev) => [...prev, input]);
         if (input) {
             socket.emit('chat message', input, Bar);
             inputat.value = " ";
-            setInput("  ")
+            setInput("")
         }
         console.log(input)
     };
-
-
-
-
 
 
     return <div className={'chats'}>

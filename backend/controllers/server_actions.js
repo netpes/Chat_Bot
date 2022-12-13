@@ -1,14 +1,21 @@
 const userSchema = require("../schema/signupSchema");
-async function getAllUsers() {
+async function getAllUsersId() {
     const users  = await userSchema.find({}, `_id`)
         if(users) {
 
-           return users.map((user)=> {
-              return user._id.toString()
-            })
+           return users.map((user)=> user._id.toString()
+            )
         }
     }
 
+async function getAllUsersName() {
+    const users  = await userSchema.find({}, `_id`)
+    if(users) {
+
+        return users.map((user)=> user.name.toString()
+        )
+    }
+}
 
 
-module.exports = {getAllUsers}
+module.exports = {getAllUsersId, getAllUsersName}

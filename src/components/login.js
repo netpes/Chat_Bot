@@ -12,6 +12,7 @@ export default function Login(){
     const navigate = useNavigate();
     const [userData,setUserData] = useState();
     const {userid,setUserId} = useContext(GetData);
+    const {userName,setUserName} = useContext(GetData);
   async function Handler(e) {
       e.preventDefault()
 
@@ -22,6 +23,7 @@ export default function Login(){
             password
         },)
         setUserData(res.data.id);
+        setUserName(res.data.name)
         setRole(res.data.role)
             next();
     }
@@ -31,7 +33,7 @@ export default function Login(){
         if (role == "user"){
             navigate('/userChat')
         } else if (role == "admin") {
-            console.log(role)
+            navigate('/adminChat')
         }
         //
     }

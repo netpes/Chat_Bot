@@ -9,19 +9,23 @@ const bodyParser = require('body-parser');
 const users = require('./views/user')
 const multer = require('multer');
 const forms = multer();
-const {getAllUsers} = require('./controllers/server_actions')
-const {updateChat} = require("./controllers/chatController");
+const {getAllUsersId, getAllUsersName} = require('./controllers/server_actions')
+const {updateChat, getChatData} = require("./controllers/chatController");
+const dateantime = require("date-and-time");
 
 
 app.set('views', __dirname + '/views');
 app.engine('html', require('ejs').renderFile);
 
-app.use(cors({origin:' http://localhost:3000'}))
+
 
 // Put these statements before you define any routes.
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json());
 app.use(forms.array());
+app.use(cors({origin:' http://localhost:3000'}))
+app.use('/', users)
+
 
 // mongo connection
 const url = 'mongodb+srv://netpes:netpes@cluster0.cnxmrap.mongodb.net/?retryWrites=true&w=majority';
@@ -29,23 +33,19 @@ mongoose?.connect(url, {
     useNewUrlParser: true,
     useUnifiedTopology: true
     });
-
 mongoose?.connection.on('connected', () => {
     console.log("connected")
 })
 
 
-app.use('/', users)
 app.get('/', (req, res) => {
     res.sendFile('../src/components/userChat.js');
     console.log('this is true')
 });
 
+//SOCKET-IO:
 
-
-
-
-//reacting to connection/disconnection
+//socket reacting to connection/disconnection
 io.on('connection', (socket) => {
     console.log('a user connected');
     socket.on('disconnect', () => {
@@ -54,56 +54,73 @@ io.on('connection', (socket) => {
 });
 
 //getting the message from the form and print it
-io.on('connection', (socket) => {
-    socket.on('chat message', (msg) => {
+// io.on('connection', (socket) => {
+//     socket.on('chat message', (msg) => {
+//
+//         console.log('message: ' + msg );
+//     });
+// });
 
-        console.log('message: ' + msg );
-    });
-});
 let messageCheck = "";
-// send to anyone:
 io.on('connection', (socket) => {
+    const date =dateantime.format(new Date(), 'DD/MM/YYYY');
+    const time = dateantime.format(new Date(), 'HH:mm');
+    let sender= "";
+    let rooma = ""
+  socket.on('chat message', (msg, room, datatoSave, userId,senderId,admin) => {
+      if(userId && datatoSave && senderId && msg) {
+          updateChat(datatoSave, userId,senderId,msg,admin,time,date)
+          sender = senderId;
+      }
+        rooma = userId;
 
-  socket.on('chat message', (msg, room, datatoSave, userId) => {
-      updateChat(datatoSave, userId)
       if(msg === messageCheck){
           console.log("stopped")
       } else {
-          if (!room) {
-              socket.broadcast.emit('chat message', msg);
+          if (!rooma) {
+              socket.broadcast.emit('chat message', msg,rooma);
+              console.log("but why boardcast")
           } else {
-              socket.to(room).emit('chat message', msg)
+              console.log("room number "+ rooma)
+              socket.to(rooma).emit('chat message', msg,rooma)
           }
           messageCheck = msg;
       }
   });
+
+    //join a room
     socket.on("join-room",(room) => {
         if (room) {
             socket.join(room)
-            // const list = io.sockets.adapter.rooms;
-            socket.emit('chat message', `joined ${room}`);
+            getChatData(room).then((chats)=> {
+                 // console.log("this is chats" , chats)
+                socket.emit('send-chats', chats)
+            });
+            // insert here get chats
+            socket.emit('message room', room);
             console.log(`room ${room}`)
 
         }
     })
 
-        getAllUsers().then((list) => {
+
+    //get all the usersId
+        getAllUsersId().then((list) => {
             socket.emit("chat-list",list)
         }).catch((err)=> {
             console.log(err + "in chats")
         })
-
+        // getAllUsersName().then((name) => {
+        //     socket.emit("name-list",name)
+        // }).catch((err)=> {
+        //     console.log(err + "in names")
+        // })
 
 });
 
 
 
-// if you want to send the message to everybody
-// io.on('connection', (socket) => {
-//     socket.on('chat message', (msg) => {
-//         socket.broadcast.emit('chat message', msg);
-//     });
-// })
+
 
 http.listen(port, () => {
     console.log(`Socket.IO server running at http://localhost:${port}/`);

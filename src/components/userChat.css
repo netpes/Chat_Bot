@@ -5,8 +5,8 @@
 }
 body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 
-#form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
-#input { border: none; padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; }
+#form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem;width:70%; position: fixed; bottom: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
+#input { border: none; padding: 0 1rem; width:70%; border-radius: 2rem; margin: 0.25rem; }
 #input:focus { outline: none; }
 #form > button { background: #333; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
 
@@ -24,7 +24,8 @@ body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSyst
     width:30%;
     border:1px solid;
     margin:0;
-    position: absolute;
+    overflow-y: scroll;
+    position: fixed;
     top:0;
     left: 0;
 }
@@ -39,4 +40,18 @@ body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSyst
 .chatList button:hover {
     background-color: black;
     color:white ;
+}
+#room {
+   display: none;
+}
+.msgInside {
+    background-color:deepskyblue;
+    padding:15px;
+    border-radius: 5px;
+    width:50%;
+    margin:5px;
+}
+.msgInside span {
+    text-align: right;
+    float:right;
 }
