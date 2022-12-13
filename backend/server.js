@@ -68,6 +68,13 @@ io.on('connection', (socket) => {
     let sender= "";
     let rooma = ""
   socket.on('chat message', (msg, room, datatoSave, userId,senderId,admin) => {
+      getChatData(room).then((chats)=> {
+        if (chats) {
+            socket.emit('send-chats', chats)
+        } else {
+            socket.emit('send-chats', '')
+            }
+          });
       if(userId && datatoSave && senderId && msg) {
           updateChat(datatoSave, userId,senderId,msg,admin,time,date)
           sender = senderId;
@@ -93,8 +100,11 @@ io.on('connection', (socket) => {
         if (room) {
             socket.join(room)
             getChatData(room).then((chats)=> {
-                 // console.log("this is chats" , chats)
-                socket.emit('send-chats', chats)
+                if (chats) {
+                    socket.emit('send-chats', chats)
+                } else {
+                    socket.emit('send-chats', "")
+                }
             });
             // insert here get chats
             socket.emit('message room', room);

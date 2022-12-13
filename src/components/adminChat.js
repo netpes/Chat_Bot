@@ -78,14 +78,17 @@ export default function AdminChat() {
     return <div className={'chats'}>
         <ul id="messages">
             {giveChat.map((a,index)=> {
-               return <SendMessage values={{message: a.message, index}}/>
+                if(a.message) {
+                    console.log(a.message)
+                    return <SendMessage values={{message: a.message, index}}/>
+                }
             })}
         </ul>
         <form id="form" action="" onSubmit={HandleSub}>
 
             <input id="room" autoComplete="off"/>
 
-            <input id="input"  onChange={(e) => setInput(e?.target.value)} autoComplete="off"/>
+            <input id="input"  onChange={(e) => setInput(e.target.value)} autoComplete="off"/>
             <button type={'submit'}>Send</button>
         </form>
         <div className={'chatList'}>
