@@ -49,16 +49,17 @@ module.exports = {
         chatsSchema.findOne({user: userId}).then((users) => {
             if (users) {
                 console.log(users)
-                if(users.admin) {
+                if(users.admin instanceof String) {
                     users.admin = admin;
                 }
                 users.chat.push(message)
 
                  users.save().then()
             } else {
+
                 const chat =  new chatsSchema({
                     user: userId,
-                    admin:admin,
+                    admin:admin.toString(),
                     chat: message
                 })
                 chat.save().then();
