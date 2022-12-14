@@ -30,7 +30,7 @@ export default function AdminChat() {
   }, []);
   useEffect(() => {
     socket?.on("connect", () => {
-      socket.on("message room", (msg) => {
+      socket?.on("message room", (msg) => {
         msg = `joined to room ${msg}`;
         setGiveChat((prev) => [...prev, msg]);
       });
@@ -48,6 +48,7 @@ export default function AdminChat() {
         setGiveChat([...chats]);
         console.log("this is chats", chats);
       });
+
       socket.on("who-is-connected", (user) => {
         setConnected((prev) => [...prev, user]);
         console.log(user + " connected");

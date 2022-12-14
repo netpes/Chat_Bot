@@ -73,21 +73,21 @@ io.on("connection", (socket) => {
     } else {
       if (!room) {
         socket.broadcast.emit("chat message", msg, room);
-        io.sockets.join(room);
+
         console.log("sure...but why boardcast?");
         socket.emit("send-chats", msg);
       } else {
-        const message = [
-          { sender: senderId, message: msg, time: time, date: date },
-        ];
         if (room) {
-          // console.log(senderId + "the id of the sender");
-          // convertSender(senderId).then((id) =>
-          //   console.log("this is thae" + id)
-          // );
-          updateChat(msg, room, senderId, admin, time, date);
-          sender = senderId;
-          console.log(room);
+          console.log(senderId + "the id of the sender");
+          convertSender(senderId).then((id) => {
+            sender = id.name;
+          });
+
+          const message = [
+            { sender: sender, message: msg, time: time, date: date },
+          ];
+          updateChat(msg, room, sender, admin, time, date);
+
           getChatData(room).then((chats) => {
             if (chats) {
               Array.prototype.push.apply(chats, message);

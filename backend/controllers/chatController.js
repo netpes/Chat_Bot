@@ -16,8 +16,8 @@ module.exports = {
   },
   convertSender: (ID) => {
     return userSchema.findById(ID).then((user) => {
-      return ID;
-      console.log("this is user" + ID);
+      return user;
+      // console.log("this is user" + user.name);
     });
   },
   updateChat: (singleMassage, userId, senderId, admin, time, date) => {
