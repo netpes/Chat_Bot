@@ -40,7 +40,7 @@ export default function AdminChat() {
         setGiveChat((prev) => [...prev, msg]);
         console.log(giveChat);
         setSender((prev) => [...prev, senderId]);
-        // window.scrollTo(0, document.body.scrollHeight);
+        window.scrollTo(0, document.body.scrollHeight);
       });
 
       //getting chats from server
@@ -74,8 +74,8 @@ export default function AdminChat() {
         "chat message",
         input,
         Bar,
+        admin, //who send the message?
         list[inputRoom.value],
-        userId,
         admin
       );
       inputat.value = " ";
@@ -87,6 +87,7 @@ export default function AdminChat() {
     document.getElementById("room").value = props;
     socket?.emit("join-room", list[props]);
     setBar(list[props]);
+    // console.log(list[props]);
   }
 
   return (
@@ -100,6 +101,7 @@ export default function AdminChat() {
                 values={{
                   message: a.message,
                   index,
+                  sender: a.sender,
                   time: a.time,
                   date: a.date,
                 }}

@@ -45,8 +45,9 @@ body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSyst
    display: none;
 }
 .msgInside {
-    background-color:deepskyblue;
+    background-color:lightgreen;
     padding:15px;
+    float: left;
     border-radius: 5px;
     width:50%;
     margin:5px;
@@ -54,4 +55,16 @@ body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSyst
 .msgInside span {
     text-align: right;
     float:right;
+}
+.dateInside {
+    display:none;
+}
+.timeInside {
+    font-size:0.75em;
+}
+.senderInside {
+    font-size:0.75em;
+    text-align:left;
+    float:left;
+
 }

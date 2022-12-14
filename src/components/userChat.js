@@ -8,7 +8,6 @@ export default function UserChat() {
   const [socket, setSocket] = useState();
   const { userId, setUserId } = useContext(GetData);
   const [Bar, setBar] = useState();
-
   const [mes, setMes] = useState([{}]);
   const inputat = document.getElementById("input");
   // const form = document.getElementById('form');
@@ -40,7 +39,7 @@ export default function UserChat() {
     event.preventDefault();
     setMes((prev) => [...prev, input]);
     if (input) {
-      socket.emit("chat message", input, userId);
+      socket.emit("chat message", input, userId, userId);
       inputat.value = " ";
       setInput("");
     }
@@ -51,10 +50,17 @@ export default function UserChat() {
     <div className={"chats"}>
       <ul id="messages">
         {mes.map((a, index) => {
-          if (a.message) {
-            console.log(a.message);
-            return <SendMessage values={{ message: a.message, index }} />;
-          }
+          return (
+            <SendMessage
+              values={{
+                message: a.message,
+                index,
+                sender: a.sender,
+                time: a.time,
+                date: a.date,
+              }}
+            />
+          );
         })}
       </ul>
       <form id="form" action="" onSubmit={handleSub}>

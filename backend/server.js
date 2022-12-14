@@ -59,7 +59,7 @@ io.on("connection", (socket) => {
   let sender = "";
   let rooma = "";
 
-  socket.on("chat message", (msg, room, userId, senderId, admin) => {
+  socket.on("chat message", (msg, room, senderId, userId, admin) => {
     // rooma = userId;
     console.log("this is room" + room);
     socket.emit("who-is-connected", room);
