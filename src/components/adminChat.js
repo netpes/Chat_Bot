@@ -93,6 +93,7 @@ export default function AdminChat() {
   return (
     <div className={"chats"}>
       <ul id="messages">
+        {/* eslint-disable-next-line array-callback-return */}
         {giveChat.map((a, index) => {
           if (a.message) {
             console.log(a.message);

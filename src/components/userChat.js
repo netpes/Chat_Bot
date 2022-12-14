@@ -24,9 +24,8 @@ export default function UserChat() {
       // console.log(userId)
       socket.emit("join-room", userId);
       socket?.on("chat message", function (msg) {
-        // console.log(msg)
         setMes((prev) => [...prev, msg]);
-        // console.log(mes);
+
         window.scrollTo(0, document.body.scrollHeight);
       });
       socket?.on("send-chats", (chats) => {

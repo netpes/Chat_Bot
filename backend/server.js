@@ -13,7 +13,11 @@ const {
   getAllUsersId,
   getAllUsersName,
 } = require("./controllers/server_actions");
-const { updateChat, getChatData } = require("./controllers/chatController");
+const {
+  updateChat,
+  getChatData,
+  convertSender,
+} = require("./controllers/chatController");
 const dateantime = require("date-and-time");
 
 app.set("views", __dirname + "/views");
@@ -61,16 +65,15 @@ io.on("connection", (socket) => {
 
   socket.on("chat message", (msg, room, senderId, userId, admin) => {
     // rooma = userId;
+
     console.log("this is room" + room);
     socket.emit("who-is-connected", room);
     if (msg === messageCheck) {
       console.log("stopped");
     } else {
-      updateChat(msg, room, senderId, admin, time, date);
-      sender = senderId;
-
       if (!room) {
         socket.broadcast.emit("chat message", msg, room);
+        io.sockets.join(room);
         console.log("sure...but why boardcast?");
         socket.emit("send-chats", msg);
       } else {
@@ -78,6 +81,13 @@ io.on("connection", (socket) => {
           { sender: senderId, message: msg, time: time, date: date },
         ];
         if (room) {
+          // console.log(senderId + "the id of the sender");
+          // convertSender(senderId).then((id) =>
+          //   console.log("this is thae" + id)
+          // );
+          updateChat(msg, room, senderId, admin, time, date);
+          sender = senderId;
+          console.log(room);
           getChatData(room).then((chats) => {
             if (chats) {
               Array.prototype.push.apply(chats, message);
@@ -90,7 +100,7 @@ io.on("connection", (socket) => {
             }
           });
         }
-        console.log("room number " + room + " send msg");
+        // console.log("room number " + room + " send msg");
         io.sockets.to(room).emit("chat message", msg, room);
       }
       messageCheck = msg;
@@ -101,6 +111,7 @@ io.on("connection", (socket) => {
   socket.on("join-room", (room) => {
     if (room) {
       socket.join(room);
+      console.log("this is the part of  my" + room);
       getChatData(room).then((chats) => {
         if (chats) {
           socket.emit("send-chats", chats);
@@ -110,11 +121,12 @@ io.on("connection", (socket) => {
       });
       // insert here get chats
       socket.emit("message room", room);
-      console.log(`room ${room}`);
+      // console.log(`room ${room}`);
     }
   });
 
   //get all the usersId
+  //need to change it to names()
   getAllUsersId()
     .then((list) => {
       socket.emit("chat-list", list);
