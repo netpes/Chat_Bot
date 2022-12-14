@@ -3,6 +3,7 @@ import { io } from "socket.io-client";
 import {useEffect, useState,useContext} from "react";
 import React from "react";
 import {GetData} from "../values";
+import SendMessage from "../handles/sendMessage";
 
 
 
@@ -12,7 +13,7 @@ export default function UserChat() {
     const [Bar,setBar] = useState();
 
 
-    const [mes,setMes] = useState([]);
+    const [mes,setMes] = useState([{}]);
     const inputat = document.getElementById('input');
     // const form = document.getElementById('form');
     const [input,setInput] =useState();
@@ -26,13 +27,17 @@ export default function UserChat() {
 
     useEffect(() => {
         socket?.on('connect', ()=> {
-            console.log(userId)
+            // console.log(userId)
             socket.emit("join-room", userId)
             socket?.on('chat message', function(msg) {
-                console.log(msg)
+                // console.log(msg)
                 setMes((prev) => [...prev, msg]);
-                console.log(mes);
+                // console.log(mes);
                 window.scrollTo(0, document.body.scrollHeight);
+            })
+            socket?.on('send-chats', (chats) => {
+                setMes([...chats])
+
             })
         })
     },[socket])
@@ -42,7 +47,7 @@ export default function UserChat() {
         event.preventDefault();
        setMes((prev) => [...prev, input]);
         if (input) {
-            socket.emit('chat message', input, Bar);
+            socket.emit('chat message', input, userId);
             inputat.value = " ";
             setInput("")
         }
@@ -52,8 +57,12 @@ export default function UserChat() {
 
     return <div className={'chats'}>
         <ul id="messages">
-            {mes.map((message, index)=>
-                <li key={index}>{message}</li>)}
+            {mes.map((a,index)=> {
+                if(a.message) {
+                    console.log(a.message)
+                    return <SendMessage values={{message: a.message, index}}/>
+                }
+            })}
         </ul>
         <form id="form" action="" onSubmit={handleSub}>
             {/*<input id="room" onChange={(e) => setBar(e?.target.value)} autoComplete="off"/>*/}

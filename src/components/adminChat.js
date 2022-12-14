@@ -18,6 +18,7 @@ export default function AdminChat() {
     const [sender,setSender] = useState([]);
     //when possible get user id to room
     const [admin,setAdmin] = useState(userId);
+    const [connected, setConnected] = useState([])
     const [mes,setMes] = useState([]);
     const inputat = document.getElementById('input');
     const inputRoom = document.getElementById('room');
@@ -32,7 +33,7 @@ export default function AdminChat() {
         socket?.on('connect', ()=> {
             socket.on('message room', (msg) => {
                 msg = `joined to room ${msg}`
-                setMes((prev) => [...prev, msg]);
+                setGiveChat((prev) => [...prev, msg]);
             })
             socket?.on('chat message', function (msg, senderId) {
                 // console.log("yeah"+senderId)
@@ -47,9 +48,12 @@ export default function AdminChat() {
             //getting chats from server
             socket?.on('send-chats', (chats) => {
                 setGiveChat([...chats])
-                //console.log(giveChat)
-            })
 
+            })
+            socket.on("who-is-connected", (user) => {
+                setConnected((prev)=>[...prev,user])
+                console.log(user + ' connected')
+            })
 
             socket?.on("chat-list", (list) => {
                 setList([...list])
@@ -64,7 +68,7 @@ export default function AdminChat() {
 
         setMes( (prev)=> [...prev, input]);
         if (input !== null) {
-            socket?.emit('chat message', input, Bar, mes, list[inputRoom.value], userId, admin);
+            socket?.emit('chat message', input, Bar, list[inputRoom.value], userId, admin);
             inputat.value = " ";
             setInput("  ")
         }
@@ -74,6 +78,7 @@ export default function AdminChat() {
     function ChangeRoom(props) {
         document.getElementById('room').value = props
         socket?.emit("join-room", list[props])
+        setBar(list[props])
     }
 
 

@@ -41,7 +41,7 @@ module.exports = {
     //         }
     //     )
     // },
-    updateChat: (datatoSave,userId, senderId, singleMassage, admin,time,date) => {
+    updateChat: (singleMassage,userId, senderId, admin,time,date) => {
 
         // console.log("hey this is sender:" +senderId + "and the admin is:" + admin + date + time)
         const message = {sender:senderId, message:singleMassage, time: time, date: date}
@@ -49,17 +49,17 @@ module.exports = {
         chatsSchema.findOne({user: userId}).then((users) => {
             if (users) {
                 console.log("late AF")
-                if(users.admin instanceof String) {
+                if(users.admin instanceof String && users.admin) {
                     users.admin = admin;
                 }
                 users.chat.push(message)
 
                  users.save().then()
-            } else {
+            } else if(userId) {
 
                 const chat =  new chatsSchema({
                     user: userId,
-                    admin:admin.toString(),
+                    admin:admin?.toString(),
                     chat: message
                 })
                 chat.save().then();

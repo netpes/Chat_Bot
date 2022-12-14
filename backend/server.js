@@ -53,51 +53,46 @@ io.on('connection', (socket) => {
     });
 });
 
-//getting the message from the form and print it
-// io.on('connection', (socket) => {
-//     socket.on('chat message', (msg) => {
-//
-//         console.log('message: ' + msg );
-//     });
-// });
 
 let messageCheck = "";
 io.on('connection', (socket) => {
     const date =dateantime.format(new Date(), 'DD/MM/YYYY');
     const time = dateantime.format(new Date(), 'HH:mm');
     let sender= "";
-    let rooma = ""
-  socket.on('chat message', (msg, room, datatoSave, userId,senderId,admin) => {
-        rooma = userId;
+    let rooma = "";
 
+  socket.on('chat message', (msg, room, userId ,senderId,admin) => {
+        // rooma = userId;
+        console.log('this is room' + room)
+      socket.emit('who-is-connected', room)
       if(msg === messageCheck){
           console.log("stopped")
       } else {
-          //needs to try to check what is the problem  with updating chats
-          if(userId && datatoSave && senderId && msg) {
-              updateChat(datatoSave, userId,senderId,msg,admin,time,date)
+              updateChat(msg, room,senderId,admin,time,date)
               sender = senderId;
-          }
-          if (!rooma) {
-              socket.broadcast.emit('chat message', msg,rooma);
+
+          if (!room) {
+              socket.broadcast.emit('chat message', msg,room);
               console.log("sure...but why boardcast?")
               socket.emit('send-chats', msg)
           } else {
               const message = [{sender:senderId, message:msg, time: time, date: date}]
-              getChatData(userId).then((chats)=> {
-                  if (chats) {
-
-                      Array.prototype.push.apply( chats,message); ;
-                      console.log(chats)
-                      socket.emit('send-chats', chats)
-                      console.log(true)
-                  } else {
-                      socket.emit('send-chats', message)
-                      console.log(false)
-                  }
-              });
-              console.log("room number "+ rooma + " send msg")
-              socket.to(rooma).emit('chat message', msg,rooma)
+              if (room) {
+                  getChatData(room).then((chats) => {
+                      if (chats) {
+                          Array.prototype.push.apply(chats, message);
+                          ;
+                          console.log(chats)
+                          socket.emit('send-chats', chats)
+                          console.log(true)
+                      } else {
+                          socket.emit('send-chats', message)
+                          console.log(false)
+                      }
+                  });
+              }
+              console.log("room number "+ room + " send msg")
+              socket.to(room).emit('chat message', msg,room)
           }
           messageCheck = msg;
       }
