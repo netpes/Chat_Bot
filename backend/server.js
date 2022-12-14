@@ -81,18 +81,17 @@ io.on('connection', (socket) => {
                   getChatData(room).then((chats) => {
                       if (chats) {
                           Array.prototype.push.apply(chats, message);
-                          ;
-                          console.log(chats)
-                          socket.emit('send-chats', chats)
+                          // console.log(chats)
+                          io.sockets.emit('send-chats', chats)
                           console.log(true)
                       } else {
-                          socket.emit('send-chats', message)
+                          io.sockets.emit('send-chats', message)
                           console.log(false)
                       }
                   });
               }
               console.log("room number "+ room + " send msg")
-              socket.to(room).emit('chat message', msg,room)
+              io.sockets.to(room).emit('chat message', msg,room)
           }
           messageCheck = msg;
       }

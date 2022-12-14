@@ -62,6 +62,9 @@ export default function AdminChat() {
                 setName([...name])
             })
         })},[socket])
+    useEffect(() => {
+        console.log("updates")
+    }, [])
 
     function HandleSub(event) {
         event.preventDefault();
