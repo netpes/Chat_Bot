@@ -12,8 +12,8 @@ body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSyst
 
 #messages {
     list-style-type: none;
-    margin: 0;
-    padding: 0;
+
+    padding-bottom: 10%;
     width: 70%;
     position: absolute;
     right: 0; }

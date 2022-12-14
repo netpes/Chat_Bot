@@ -48,7 +48,7 @@ module.exports = {
 
         chatsSchema.findOne({user: userId}).then((users) => {
             if (users) {
-                console.log(users)
+                console.log("late AF")
                 if(users.admin instanceof String) {
                     users.admin = admin;
                 }

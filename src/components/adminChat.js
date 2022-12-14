@@ -36,16 +36,18 @@ export default function AdminChat() {
             })
             socket?.on('chat message', function (msg, senderId) {
                 // console.log("yeah"+senderId)
+                console.log("why not? " + msg)
                 setGiveChat((prev) => [...prev, msg]);
+                console.log(giveChat)
                 setSender((prev) => [...prev, senderId]);
                 datea = this.date;
                 // window.scrollTo(0, document.body.scrollHeight);
             })
 
-            //getiing chets from server
+            //getting chats from server
             socket?.on('send-chats', (chats) => {
                 setGiveChat([...chats])
-                console.log(giveChat)
+                //console.log(giveChat)
             })
 
 
@@ -60,7 +62,7 @@ export default function AdminChat() {
     function HandleSub(event) {
         event.preventDefault();
 
-        setMes( [...input]);
+        setMes( (prev)=> [...prev, input]);
         if (input !== null) {
             socket?.emit('chat message', input, Bar, mes, list[inputRoom.value], userId, admin);
             inputat.value = " ";

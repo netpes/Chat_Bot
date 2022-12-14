@@ -68,31 +68,40 @@ io.on('connection', (socket) => {
     let sender= "";
     let rooma = ""
   socket.on('chat message', (msg, room, datatoSave, userId,senderId,admin) => {
-      getChatData(room).then((chats)=> {
-        if (chats) {
-            socket.emit('send-chats', chats)
-        } else {
-            socket.emit('send-chats', '')
-            }
-          });
-      if(userId && datatoSave && senderId && msg) {
-          updateChat(datatoSave, userId,senderId,msg,admin,time,date)
-          sender = senderId;
-      }
         rooma = userId;
 
       if(msg === messageCheck){
           console.log("stopped")
       } else {
+          //needs to try to check what is the problem  with updating chats
+          if(userId && datatoSave && senderId && msg) {
+              updateChat(datatoSave, userId,senderId,msg,admin,time,date)
+              sender = senderId;
+          }
           if (!rooma) {
               socket.broadcast.emit('chat message', msg,rooma);
-              console.log("but why boardcast")
+              console.log("sure...but why boardcast?")
+              socket.emit('send-chats', msg)
           } else {
-              console.log("room number "+ rooma)
+              const message = [{sender:senderId, message:msg, time: time, date: date}]
+              getChatData(userId).then((chats)=> {
+                  if (chats) {
+
+                      Array.prototype.push.apply( chats,message); ;
+                      console.log(chats)
+                      socket.emit('send-chats', chats)
+                      console.log(true)
+                  } else {
+                      socket.emit('send-chats', message)
+                      console.log(false)
+                  }
+              });
+              console.log("room number "+ rooma + " send msg")
               socket.to(rooma).emit('chat message', msg,rooma)
           }
           messageCheck = msg;
       }
+
   });
 
     //join a room
