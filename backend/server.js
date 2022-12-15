@@ -112,16 +112,18 @@ io.on("connection", (socket) => {
     if (room) {
       socket.join(room);
       console.log("this is the part of  my" + room);
-      getChatData(room).then((chats) => {
-        if (chats) {
-          socket.emit("send-chats", chats);
-        } else {
-          socket.emit("send-chats", "");
-        }
-      });
-      // insert here get chats
+      getChatData(room)
+        .then((chats) => {
+          if (chats) {
+            socket.emit("send-chats", chats);
+          } else {
+            socket.emit("send-chats", "");
+          }
+        })
+        .catch((err) => {
+          console.log(`error ${err} in chats`);
+        });
       socket.emit("message room", room);
-      // console.log(`room ${room}`);
     }
   });
 

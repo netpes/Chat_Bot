@@ -1,8 +1,12 @@
 const userSchema = require("../schema/signupSchema");
 async function getAllUsersId() {
-  const users = await userSchema.find({}, `name`);
+  const users = await userSchema.find();
   if (users) {
-    return users.map((user) => user.name.toString());
+    const Fusers = users.map((user) => {
+      return { name: user.name, id: user._id };
+    });
+
+    return Fusers;
   }
 }
 

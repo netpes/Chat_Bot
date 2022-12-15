@@ -54,11 +54,9 @@ export default function AdminChat() {
         console.log(user + " connected");
       });
 
-      socket?.on("chat-list", (list) => {
-        setList([...list]);
-      });
-      socket?.on("name-list", (name) => {
-        setName([...name]);
+      socket?.on("chat-list", (userdata) => {
+        setList(userdata);
+        console.log(userdata);
       });
     });
   }, [socket]);
@@ -86,8 +84,8 @@ export default function AdminChat() {
 
   function ChangeRoom(props) {
     document.getElementById("room").value = props;
-    socket?.emit("join-room", list[props]);
-    setBar(list[props]);
+    socket?.emit("join-room", props);
+    setBar(props);
     // console.log(list[props]);
   }
 
@@ -123,9 +121,9 @@ export default function AdminChat() {
         <button type={"submit"}>Send</button>
       </form>
       <div className={"chatList"}>
-        {list.map((item, index) => (
-          <button index={index} onClick={() => ChangeRoom(index)}>
-            {item}
+        {list.map((user, index) => (
+          <button index={index} onClick={() => ChangeRoom(user.id)}>
+            {user.name}
           </button>
         ))}
       </div>
