@@ -1,6 +1,6 @@
 import "./userChat.css";
 import { io } from "socket.io-client";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { GetData } from "../values";
 import SendMessage from "../handles/sendMessage";
 
@@ -54,7 +54,7 @@ export default function UserChat() {
               values={{
                 message: a.message,
                 index,
-                sender: a.sender,
+                sender: userId,
                 time: a.time,
                 date: a.date,
               }}
@@ -62,6 +62,7 @@ export default function UserChat() {
           );
         })}
       </ul>
+
       <form id="form" action="" onSubmit={handleSub}>
         {/*<input id="room" onChange={(e) => setBar(e?.target.value)} autoComplete="off"/>*/}
         {/*<button onClick={CreateRoom}>make a room</button>*/}

@@ -20,7 +20,7 @@ module.exports = {
       // console.log("this is user" + user.name);
     });
   },
-  updateChat: (singleMassage, userId, senderId, admin, time, date) => {
+  updateChat: async (singleMassage, userId, senderId, admin, time, date) => {
     // console.log("hey this is sender:" +senderId + "and the admin is:" + admin + date + time)
     const message = {
       sender: senderId,

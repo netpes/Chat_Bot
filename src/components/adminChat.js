@@ -4,25 +4,24 @@ import { useEffect, useState, useContext } from "react";
 import React from "react";
 import { GetData } from "../values";
 import SendMessage from "../handles/sendMessage";
+import { useRef } from "react";
 
 export default function AdminChat() {
   const [socket, setSocket] = useState();
   const { userId, setUserId } = useContext(GetData);
-  const [msgDate, setMsgDate] = useState([]);
-  // const {userName, setUserName} = useContext(GetData);
+  const { userName, setUserName } = useContext(GetData);
   const [Bar, setBar] = useState();
-  const [list, setList] = useState([]);
-  const [name, setName] = useState([]);
+  const [list, setList] = useState([{}]);
   const [sender, setSender] = useState([]);
   //when possible get user id to room
   const [admin, setAdmin] = useState(userId);
   const [connected, setConnected] = useState([]);
-  const [mes, setMes] = useState([]);
-  const inputat = document.getElementById("input");
-  const inputRoom = document.getElementById("room");
   const [input, setInput] = useState();
   const [giveChat, setGiveChat] = useState([]);
-
+  const [isConnected, setIsConnected] = useState(false);
+  const ref = useRef();
+  const inputat = document.getElementById("input");
+  const inputRoom = document.getElementById("room");
   useEffect(() => {
     setSocket(
       io.connect("http://localhost:2000", { transports: ["websocket"] })
@@ -30,51 +29,43 @@ export default function AdminChat() {
   }, []);
   useEffect(() => {
     socket?.on("connect", () => {
-      socket?.on("message room", (msg) => {
-        msg = `joined to room ${msg}`;
-        setGiveChat((prev) => [...prev, msg]);
-      });
+      setIsConnected(true);
+      // socket?.on("message room", (msg) => {
+      //   msg = `joined to room ${msg}`;
+      //   setGiveChat((prev) => [...prev, msg]);
+      // });
       socket?.on("chat message", function (msg, senderId) {
-        // console.log("yeah"+senderId)
-        console.log("why not? " + msg);
         setGiveChat((prev) => [...prev, msg]);
-        console.log(giveChat);
         setSender((prev) => [...prev, senderId]);
         window.scrollTo(0, document.body.scrollHeight);
       });
-
       //getting chats from server
-      socket?.on("send-chats", (chats) => {
+      socket.on("send-chats", (chats) => {
         setGiveChat([...chats]);
-        console.log("this is chats", chats);
+        // console.log("this is chats", chats);
       });
-
-      socket.on("who-is-connected", (user) => {
-        setConnected((prev) => [...prev, user]);
-        console.log(user + " connected");
-      });
-
+      // socket.on("who-is-connected", (user) => {
+      //   setConnected((prev) => [...prev, user]);
+      //   console.log(user + " connected");
+      // });
       socket?.on("chat-list", (userdata) => {
         setList(userdata);
-        console.log(userdata);
       });
     });
-  }, [socket]);
-  useEffect(() => {
-    console.log("updates");
-  }, []);
+  }, [isConnected, socket]);
 
   function HandleSub(event) {
     event.preventDefault();
+    ref.current.scrollIntoView({ behavior: "smooth" });
+    console.log(admin);
 
-    setMes((prev) => [...prev, input]);
-    if (input !== null) {
+    if (input) {
       socket?.emit(
         "chat message",
         input,
         Bar,
         admin, //who send the message?
-        list[inputRoom.value],
+        inputRoom.value,
         admin
       );
       inputat.value = " ";
@@ -82,9 +73,11 @@ export default function AdminChat() {
     }
   }
 
-  function ChangeRoom(props) {
+  function ChangeRoom(props, e) {
+    e.preventDefault();
+    ref.current.scrollIntoView({ behavior: "smooth" });
     document.getElementById("room").value = props;
-    socket?.emit("join-room", props);
+    socket.emit("join-room", props);
     setBar(props);
     // console.log(list[props]);
   }
@@ -92,7 +85,6 @@ export default function AdminChat() {
   return (
     <div className={"chats"}>
       <ul id="messages">
-        {/* eslint-disable-next-line array-callback-return */}
         {giveChat.map((a, index) => {
           if (a.message) {
             console.log(a.message);
@@ -104,11 +96,13 @@ export default function AdminChat() {
                   sender: a.sender,
                   time: a.time,
                   date: a.date,
+                  myname: userName,
                 }}
               />
             );
           }
         })}
+        <div ref={ref}></div>
       </ul>
       <form id="form" action="" onSubmit={HandleSub}>
         <input id="room" autoComplete="off" />
@@ -122,7 +116,7 @@ export default function AdminChat() {
       </form>
       <div className={"chatList"}>
         {list.map((user, index) => (
-          <button index={index} onClick={() => ChangeRoom(user.id)}>
+          <button index={index} onClick={(e) => ChangeRoom(user.id, e)}>
             {user.name}
           </button>
         ))}

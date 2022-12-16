@@ -64,60 +64,53 @@ io.on("connection", (socket) => {
   let rooma = "";
 
   socket.on("chat message", (msg, room, senderId, userId, admin) => {
-    // rooma = userId;
-
     console.log("this is room" + room);
     socket.emit("who-is-connected", room);
-    if (msg === messageCheck) {
-      console.log("stopped");
-    } else {
-      if (!room) {
-        socket.broadcast.emit("chat message", msg, room);
 
-        console.log("sure...but why boardcast?");
-        socket.emit("send-chats", msg);
+    if (msg === messageCheck) console.log("stopped");
+    if (!room) return false;
+    io.to(room).emit("chat message", msg, room);
+    if (room) {
+      console.log(senderId, "the id of the sender");
+      if (senderId) {
+        convertSender(senderId.toString()).then((id) => {
+          sender = id.name;
+        });
       } else {
-        if (room) {
-          console.log(senderId + "the id of the sender");
-          convertSender(senderId).then((id) => {
-            sender = id.name;
-          });
-
-          const message = [
-            { sender: sender, message: msg, time: time, date: date },
-          ];
-          updateChat(msg, room, sender, admin, time, date);
-
-          getChatData(room).then((chats) => {
-            if (chats) {
-              Array.prototype.push.apply(chats, message);
-              // console.log(chats)
-              io.sockets.emit("send-chats", chats);
-              console.log(true);
-            } else {
-              io.sockets.emit("send-chats", message);
-              console.log(false);
-            }
-          });
-        }
-        // console.log("room number " + room + " send msg");
-        io.sockets.to(room).emit("chat message", msg, room);
+        sender = "anon";
       }
-      messageCheck = msg;
+
+      const message = [
+        { sender: sender, message: msg, time: time, date: date },
+      ];
+
+      updateChat(msg, room, sender, admin, time, date).then(() => {
+        getChatData(room).then((chats) => {
+          if (chats) {
+            Array.prototype.push.apply(chats, message);
+            io.sockets.emit("send-chats", chats);
+            console.log(true);
+          } else {
+            io.sockets.emit("send-chats", message);
+            console.log(false);
+          }
+        });
+      });
     }
+    messageCheck = msg;
   });
 
   //join a room
   socket.on("join-room", (room) => {
     if (room) {
       socket.join(room);
-      console.log("this is the part of  my" + room);
+      console.log("this is the part of  my " + room);
       getChatData(room)
         .then((chats) => {
           if (chats) {
-            socket.emit("send-chats", chats);
+            io.emit("send-chats", chats);
           } else {
-            socket.emit("send-chats", "");
+            io.emit("send-chats", "");
           }
         })
         .catch((err) => {
@@ -128,7 +121,6 @@ io.on("connection", (socket) => {
   });
 
   //get all the usersId
-  //need to change it to names()
   getAllUsersId()
     .then((list) => {
       socket.emit("chat-list", list);
@@ -136,11 +128,6 @@ io.on("connection", (socket) => {
     .catch((err) => {
       console.log(err + "in chats");
     });
-  // getAllUsersName().then((name) => {
-  //     socket.emit("name-list",name)
-  // }).catch((err)=> {
-  //     console.log(err + "in names")
-  // })
 });
 
 http.listen(port, () => {
