@@ -75,6 +75,8 @@ export default function AdminChat() {
       }
     }
   }
+
+  //for bot
   function LastChat(chat) {
     let i = chat.length - 1;
     while (chat[i].sender === userName) {
@@ -98,13 +100,15 @@ export default function AdminChat() {
       //need to get user last message before input
       console.log(LastChat(giveChat, chatter));
       socket.emit("send-bot", LastChat(giveChat, chatter), input, userName);
-      socket?.emit(
-        "chat message",
-        input,
-        Bar,
-        admin, //who send the message?
-        admin
-      );
+      if (userId) {
+        socket?.emit(
+          "chat message",
+          input,
+          Bar,
+          userId, //who send the message?
+          admin
+        );
+      }
       inputat.value = " ";
       setInput("  ");
     }

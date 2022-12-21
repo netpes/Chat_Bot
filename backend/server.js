@@ -68,36 +68,35 @@ let sender = "";
 let messageCheck = "";
 
 io.on("connection", (socket) => {
-  socket.on("chat message", (msg, room, senderId, admin) => {
+  socket.on("chat message", async (msg, room, senderId, admin) => {
     if (!room) return false;
     if (msg === messageCheck) return console.log("stopped");
 
     if (room && senderId) {
       console.log(senderId, "the id of the sender");
-      if (!senderId) {
-        sender = "anon";
-      } else {
-        convertSender(senderId).then((id) => {
+      if (senderId) {
+        await convertSender(senderId).then((id) => {
           sender = id.name;
+          console.log(true, false);
         });
       }
 
       const message = [
         { sender: sender, message: msg, time: time, date: date },
       ];
-
+      console.log("ok i tryied", sender);
       updateChat(msg, room, sender, admin, time, date).then(() => {
+        SendChatData(room);
         getChatData(room).then((chats) => {
           if (chats) {
             Array.prototype.push.apply(chats, message);
             chat = chats;
-            //force everyone on the server to get send-chat
-            socket.to(room).emit("send-chats", chats);
             console.log(true);
           } else {
-            socket.to(room).emit("send-chats", message);
+            chat = message;
             console.log(false);
           }
+          socket.to(room).emit("send-chats", chat);
           SendChatData(room);
         });
       });
@@ -115,14 +114,16 @@ io.on("connection", (socket) => {
           if (answer !== false && question !== preQuestion) {
             console.log(answer);
             const botReplay = [{ sender: "bot", message: answer }];
-            updateChat(answer, room, "BOT", admin, time, date);
+            updateChat(answer, room, "BOT", senderId, time, date);
             Array.prototype.push.apply(chat, botReplay);
             socket.to(userId).emit("chat message", botReplay);
             preQuestion = question;
           } else {
             //learn
           }
+          SendChatData(room);
         });
+        SendChatData(room);
       });
     }
   });

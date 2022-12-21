@@ -32,9 +32,9 @@ export default function UserChat() {
       });
 
       //getting chats from server
-      socket?.on("send-chats", (chats) => {
+      socket.on("send-chats", (chats) => {
         setGiveChat([...chats]);
-        // console.log("this is chats", chats);
+        console.log("this is chats", chats);
       });
     });
   }, [socket]);

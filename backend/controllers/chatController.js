@@ -17,15 +17,15 @@ module.exports = {
   convertSender: (ID) => {
     console.log(`hey! this is my id `, ID);
     return userSchema.findById(ID).then((user) => {
+      // console.log("this is user ", user.name);
       return user;
-      // console.log("this is user" + user.name);
     });
   },
-
-  updateChat: async (singleMassage, userId, senderId, admin, time, date) => {
+  // (msg, room, sender, admin, time, date, senderId)
+  updateChat: async (singleMassage, userId, sender, admin, time, date) => {
     // console.log("hey this is sender:" +senderId + "and the admin is:" + admin + date + time)
     const message = {
-      sender: senderId,
+      sender: sender,
       message: singleMassage,
       time: time,
       date: date,
@@ -36,9 +36,9 @@ module.exports = {
       .then((users) => {
         if (users) {
           if (users.admin) {
-            users.admin = admin?.toString();
+            users.admin = admin;
           }
-          users?.chat.push(message);
+          users.chat.push(message);
 
           users.save().then();
         } else if (userId) {
@@ -49,6 +49,7 @@ module.exports = {
           });
           chat?.save().then();
         }
+        console.log("this is sender By BackEnd: ", sender);
       })
       .catch((err) => {
         console.log(err);
