@@ -45,8 +45,8 @@ export default function UserChat() {
     setGiveChat((prev) => [...prev, message]);
 
     if (input !== null) {
-      socket.emit("answer_bot", input, userId);
       socket?.emit("chat message", input, userId, userId);
+      socket?.emit("answer_bot", input);
       inputat.value = " ";
       setInput("");
     }

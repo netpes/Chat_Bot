@@ -1,0 +1,26 @@
+realtime error:
+
+    description:
+        sender cant see his message after he send it.
+
+    in depth:
+        socket dont update the sender, probably relate to rooms.
+
+    conclusions:
+        1. the chat updates in the server, console.log, prints from the DB request
+        2. bot also cause the same problem.
+        3. io.sockets keeps to push all messages to all users.
+        4. because of FrontEnd solution you can see the message for 0.1 sec and after the socket connects, the message disappears.
+        5. RT works for chats, but admin reciving the data from user
+
+
+
+Bot Bug:
+    1. double values in DB
+    2. cant export - fixed
+    3. RT - fixed
+
+
+Bot improve:
+    stores variant of the answers in array, and return the most answered question.
+

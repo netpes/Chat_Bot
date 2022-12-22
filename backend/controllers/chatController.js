@@ -1,6 +1,4 @@
 const chatsSchema = require("../schema/chatsSchema");
-// const bcrypt = require('bcrypt')
-const dateantime = require("date-and-time");
 const userSchema = require("../schema/signupSchema");
 
 module.exports = {
@@ -40,7 +38,7 @@ module.exports = {
           }
           users.chat.push(message);
 
-          users.save().then();
+          users.save().then(console.log("saved!"));
         } else if (userId) {
           const chat = new chatsSchema({
             user: userId,
@@ -49,7 +47,8 @@ module.exports = {
           });
           chat?.save().then();
         }
-        console.log("this is sender By BackEnd: ", sender);
+
+        console.log("this is sender By BackEnd: ", message);
       })
       .catch((err) => {
         console.log(err);

@@ -54,12 +54,12 @@ app.get("/", (req, res) => {
 //SOCKET-IO:
 
 //socket reacting to connection/disconnection
-io.on("connection", (socket) => {
-  console.log("a user connected");
-  socket.on("disconnect", () => {
-    console.log("user disconnected");
-  });
-});
+// io.on("connection", (socket) => {
+//   console.log("a user connected");
+//   socket.on("disconnect", () => {
+//     console.log("user disconnected");
+//   });
+// });
 
 const date = dateantime.format(new Date(), "DD/MM/YYYY");
 const time = dateantime.format(new Date(), "HH:mm");
@@ -84,57 +84,60 @@ io.on("connection", (socket) => {
       const message = [
         { sender: sender, message: msg, time: time, date: date },
       ];
-      console.log("ok i tryied", sender);
-      updateChat(msg, room, sender, admin, time, date).then(() => {
-        SendChatData(room);
+      console.log("ok i tried", sender);
+      console.log("this is 1", msg);
+      updateChat(msg, room, sender, admin, time, date).then(async () => {
+        console.log("this is 2", msg);
         getChatData(room).then((chats) => {
           if (chats) {
             Array.prototype.push.apply(chats, message);
             chat = chats;
             console.log(true);
+            io.to(room).emit("send-chats", chat);
+            // io.local.emit("send-chats", chats);
           } else {
             chat = message;
             console.log(false);
           }
-          socket.to(room).emit("send-chats", chat);
-          SendChatData(room);
         });
+        // await SendChatData(room);
       });
 
       //Bot Functions
-      let preQuestion = "";
+      let preAnswer = "";
       messageCheck = msg;
       socket.on("send-bot", (question, answer, admin) => {
         console.log("recived");
-        CreateAnswer(question, answer, admin).then(console.log("saved"));
+        CreateAnswer(question, answer, admin).then(console.log("answer saved"));
       });
 
-      socket.on("answer_bot", (question, userId) => {
-        SearchForAnswer(question).then((answer) => {
-          if (answer !== false && question !== preQuestion) {
+      socket.on("answer_bot", (question) => {
+        SearchForAnswer(question).then(async (answer) => {
+          if (answer !== false && answer !== preAnswer) {
             console.log(answer);
-            const botReplay = [{ sender: "bot", message: answer }];
-            updateChat(answer, room, "BOT", senderId, time, date);
-            Array.prototype.push.apply(chat, botReplay);
-            socket.to(userId).emit("chat message", botReplay);
-            preQuestion = question;
-          } else {
-            //learn
+            updateChat(answer, room, "BOT", admin, time, date).then(() => {
+              const botReplay = [{ sender: "BOT", message: answer }];
+              socket.join(room);
+              io.to(room).emit("chat message", botReplay);
+              SendChatData(room);
+              preAnswer = answer;
+            });
           }
-          SendChatData(room);
         });
-        SendChatData(room);
+        // SendChatData(room);
       });
     }
   });
-
+  let prevRoom = "";
   //join a room
   socket.on("join-room", (room) => {
+    socket.leave(prevRoom);
     if (room) {
       socket.join(room);
       console.log("this is the part of  my " + room);
       SendChatData(room);
       socket.emit("message room", room);
+      prevRoom = room;
     }
     socket.on("active-action", (bar) => {
       setActive(bar);

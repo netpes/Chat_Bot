@@ -32,11 +32,6 @@ export default function AdminChat() {
   }, []);
   useEffect(() => {
     socket?.on("connect", () => {
-      socket?.on("chat message", function (msg) {
-        console.log("why not? " + msg);
-        setGiveChat((prev) => [...prev, msg]);
-        window.scrollTo(0, document.body.scrollHeight);
-      });
       socket.on("inactive-chats", (inactiveList) => {
         setInactive(inactiveList);
         // console.log(inactive);

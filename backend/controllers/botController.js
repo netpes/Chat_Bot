@@ -7,8 +7,9 @@ module.exports = {
       .findOne({ question: question })
       .then((questionValues) => {
         if (questionValues?.answer) {
-          return questionValues.answer;
+          return questionValues.anwer;
         } else {
+          console.log(false);
           return false;
         }
       })
@@ -17,28 +18,26 @@ module.exports = {
       });
   },
   CreateAnswer: (question, answer, admin) => {
-    return bot_schema
-      .findOne({ question: question })
-      .then((questionValues) => {
-        console.log(questionValues);
-        if (questionValues?.question) {
-          if (questionValues.admin) {
-            questionValues.admin = admin?.toString();
+    return (
+      bot_schema
+        .findOne({ question: question })
+        //if question exist...
+        .then((questionValues) => {
+          console.log(questionValues);
+          if (questionValues) {
+            //later insert here and answer into array of answers
+          } else {
+            const bot = new bot_schema({
+              question: question,
+              admin: admin,
+              answer: answer,
+            });
+            bot?.save().then();
           }
-          questionValues?.answer.push(answer);
-
-          questionValues.save().then();
-        } else {
-          const bot = new bot_schema({
-            question: question,
-            admin: admin,
-            answer: answer,
-          });
-          bot.save().then();
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+        })
+        .catch((err) => {
+          console.log(err);
+        })
+    );
   },
 };
