@@ -7,7 +7,23 @@ module.exports = {
       .findOne({ question: question })
       .then((questionValues) => {
         if (questionValues?.answer) {
-          return questionValues.anwer;
+          //calc the most common answer
+          const arr1 = questionValues.answer;
+          let mf = 1;
+          let m = 0;
+          let item;
+          for (let i = 0; i < arr1.length; i++) {
+            for (let j = i; j < arr1.length; j++) {
+              if (arr1[i] == arr1[j]) m++;
+              if (mf < m) {
+                mf = m;
+                item = arr1[i];
+              }
+            }
+            m = 0;
+          }
+          console.log(`${item} ( ${mf} times ) `);
+          return questionValues.answer[0];
         } else {
           console.log(false);
           return false;
@@ -26,6 +42,7 @@ module.exports = {
           console.log(questionValues);
           if (questionValues) {
             //later insert here and answer into array of answers
+            questionValues.answer.push(answer);
           } else {
             const bot = new bot_schema({
               question: question,

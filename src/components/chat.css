@@ -77,6 +77,14 @@ body {
     justify-content: flex-start;
     flex-direction: column;
 }
+#archiveButton {
+    background-color: #04AA6D;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+}
 
 .discussions .search {
     display:flex;

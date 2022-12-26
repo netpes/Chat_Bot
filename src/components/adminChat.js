@@ -4,8 +4,6 @@ import { useEffect, useState, useContext, createRef } from "react";
 import React from "react";
 import { GetData } from "../values";
 import SendMessage from "../handles/sendMessage";
-import Inactive from "../handles/inactive";
-import { List } from "@mui/material";
 
 export default function AdminChat() {
   const { userName, setUserName } = useContext(GetData);
@@ -19,6 +17,7 @@ export default function AdminChat() {
   const [socket, setSocket] = useState();
   const [input, setInput] = useState();
   const [prevList, setprevList] = useState([]);
+  const [toggle, setToggle] = useState(false);
   const [Bar, setBar] = useState();
   const searchRef = createRef();
 
@@ -34,7 +33,6 @@ export default function AdminChat() {
     socket?.on("connect", () => {
       socket.on("inactive-chats", (inactiveList) => {
         setInactive(inactiveList);
-        // console.log(inactive);
       });
       //getting chats from server
       socket?.on("send-chats", (chats) => {
@@ -46,8 +44,6 @@ export default function AdminChat() {
       socket?.on("chat-list", (userdata) => {
         setList(userdata);
         setprevList(userdata);
-        // console.log(list);
-        // console.log(userdata);
       });
     });
   }, [socket]);
@@ -85,6 +81,14 @@ export default function AdminChat() {
   function DeActive(bar) {
     console.log(bar);
     socket.emit("active-action", bar);
+    socket.emit("refresh");
+    if (toggle == true) {
+      document.getElementById("archiveButton").innerText = "Open";
+      setToggle(false);
+    } else {
+      document.getElementById("archiveButton").innerText = "Close";
+      setToggle(true);
+    }
   }
   function HandleSub(event) {
     event.preventDefault();
@@ -196,7 +200,9 @@ export default function AdminChat() {
         </section>
         <section className="chat">
           <div className="header-chat">
-            <button onClick={() => DeActive(Bar)}>Close Case</button>
+            <button id={"archiveButton"} onClick={() => DeActive(Bar)}>
+              Close
+            </button>
             <p className="name">{chatter}</p>
             <i
               className="icon clickable fa fa-ellipsis-h right"

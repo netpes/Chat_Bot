@@ -18,6 +18,7 @@ const {
   updateChat,
   getChatData,
   convertSender,
+  ML,
 } = require("./controllers/chatController");
 const dateantime = require("date-and-time");
 const {
@@ -68,6 +69,7 @@ let sender = "";
 let messageCheck = "";
 
 io.on("connection", (socket) => {
+  //
   socket.on("chat message", async (msg, room, senderId, admin) => {
     if (!room) return false;
     if (msg === messageCheck) return console.log("stopped");
@@ -93,6 +95,7 @@ io.on("connection", (socket) => {
             Array.prototype.push.apply(chats, message);
             chat = chats;
             console.log(true);
+            ML(msg, chats);
             io.to(room).emit("send-chats", chat);
             // io.local.emit("send-chats", chats);
           } else {
@@ -139,9 +142,14 @@ io.on("connection", (socket) => {
       socket.emit("message room", room);
       prevRoom = room;
     }
+    socket.on("refresh", () => {
+      SendChatData(room);
+      SendAllUsers();
+    });
     socket.on("active-action", (bar) => {
       setActive(bar);
       SendChatData(room);
+      SendAllUsers();
       getInactiveChats().then((inactive) => {
         io.sockets.emit("inactive-chats", inactive);
       });
