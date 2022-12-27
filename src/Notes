@@ -19,8 +19,16 @@ Bot Bug:
     1. double values in DB
     2. cant export - fixed
     3. RT - fixed
-
+    4. Bot respond to Admin, please fix the emitter - fixed
+    5. emit twice for some reason
 
 Bot improve:
     stores variant of the answers in array, and return the most answered question.
+
+
+    ML BOT:
+     lags, collapse into infinite loop. - fixed
+     for some reason, bot dont mimic after patterns, only after try,me,now, idk. - fixed
+     check if he search for any match - fixed
+
 

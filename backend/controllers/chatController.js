@@ -56,55 +56,75 @@ module.exports = {
       });
   },
   ML: (value, new_chat) => {
-    let Obj = {};
-    let len, chat_from_db, i, a, m;
+    let len, chat_from_db, i, a;
     let array = [];
-    // console.log(new_chat);
 
     // find all chats that have the same message.
-    chatsSchema.find({ message: value }).then((chats) => {
+    return chatsSchema.find({ message: value }).then((chats) => {
       for (i = 0; i < chats.length; i++) {
+        console.log(i);
         chat_from_db = chats[i]?.chat;
         len = new_chat.length - 1;
         let jib = [];
-
+        if (value === new_chat[len.message]) {
+          console.log("indeed");
+        }
         //return the location of the message in the chat from the DB
-        const recived_chat = new_chat[len];
-        // console.log(chat_from_db, " and ", recived_chat);
-        // console.log(chat_from_db.length);
         for (a = 0; a < chat_from_db.length; a++) {
-          if (chat_from_db[a].message === recived_chat.message) {
+          if (chat_from_db[a].message === value) {
             //jib needs to be an array, so he would know all the times that the message referenced in the chat
             jib.push(a);
-            console.log("worked!");
+            // console.log("worked!");
           }
         }
+
+        //run all JIB values (all the matches for this chat)
         for (let j = 0; j < jib.length; j++) {
           let matchingLocation = jib[j];
-
+          let mySmallArr = [];
+          mySmallArr.push(chats[i]?.user);
+          mySmallArr.push(matchingLocation);
+          //checking how far the matches match, and insert into array
           while (
-            chat_from_db[matchingLocation]?.message ===
-              new_chat[len]?.message &&
-            matchingLocation !== len
+            chat_from_db[matchingLocation]?.message == new_chat[len]?.message
           ) {
-            array.push(new_chat[len]?.message);
-            console.log("heyyyyyyy working");
-            matchingLocation = matchingLocation - 1;
-            len = len - 1;
+            if (chat_from_db !== new_chat) {
+              console.log(
+                chat_from_db[matchingLocation - 1]?.message,
+                " and ",
+                new_chat[len - 1]?.message
+              );
+              // if (matchingLocation !== len) {
+              mySmallArr.push(new_chat[len].message);
+              console.log("array push");
+              if (matchingLocation === 0) {
+                break;
+              }
+              matchingLocation = matchingLocation - 1;
+              len = len - 1;
+              console.log(matchingLocation);
+              // }
+            }
           }
+          if (mySmallArr.length > 0) array.push(mySmallArr);
         }
         //get the prediction items from DB
         // insert into jib[here] the one with the most values.
-        // array.push(chat_from_db[jib[jib.length - 1]]?.message);
-        Obj.len = array;
       }
       // only when user send the message
-      //returns the highest match.
-      //
-      // array.map((match) => {
-      //   bigger = Math.max(bigger.length, match.length);
-      // });
-      console.log("thats the result", Obj);
+
+      console.log("that's the result", array);
+      let bigger = 0;
+      let store = 0;
+      array.map((th, index) => {
+        if (bigger < th.length) {
+          store = index;
+          bigger = array[index].length;
+        }
+      });
+
+      console.log("this is bigger ", array[store]);
+      return array[store];
     });
   },
 };

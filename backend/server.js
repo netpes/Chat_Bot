@@ -25,7 +25,7 @@ const {
   SearchForAnswer,
   CreateAnswer,
 } = require("./controllers/botController");
-
+require("events").EventEmitter.defaultMaxListeners = 15;
 app.set("views", __dirname + "/views");
 app.engine("html", require("ejs").renderFile);
 
@@ -37,6 +37,7 @@ app.use(cors({ origin: " http://localhost:3000" }));
 app.use("/", users);
 
 // mongo connection
+mongoose.set("strictQuery", true);
 const url =
   "mongodb+srv://netpes:netpes@cluster0.cnxmrap.mongodb.net/?retryWrites=true&w=majority";
 mongoose?.connect(url, {
@@ -54,13 +55,13 @@ app.get("/", (req, res) => {
 
 //SOCKET-IO:
 
-//socket reacting to connection/disconnection
-// io.on("connection", (socket) => {
-//   console.log("a user connected");
-//   socket.on("disconnect", () => {
-//     console.log("user disconnected");
-//   });
-// });
+// socket reacting to connection/disconnection
+io.on("connection", (socket) => {
+  console.log("a user connected");
+  socket.on("disconnect", () => {
+    console.log("user disconnected");
+  });
+});
 
 const date = dateantime.format(new Date(), "DD/MM/YYYY");
 const time = dateantime.format(new Date(), "HH:mm");
@@ -88,47 +89,39 @@ io.on("connection", (socket) => {
       ];
       console.log("ok i tried", sender);
       console.log("this is 1", msg);
-      updateChat(msg, room, sender, admin, time, date).then(async () => {
+      updateChat(msg, room, sender, admin, time, date).then(() => {
         console.log("this is 2", msg);
-        getChatData(room).then((chats) => {
+        getChatData(room).then(async (chats) => {
           if (chats) {
             Array.prototype.push.apply(chats, message);
             chat = chats;
             console.log(true);
-            ML(msg, chats);
+
             io.to(room).emit("send-chats", chat);
-            // io.local.emit("send-chats", chats);
           } else {
             chat = message;
             console.log(false);
           }
+          // await SendChatData(room);
+          await socket.on("answer_bot", (question) => {
+            ML(question, chats).then((array) => {
+              if (array?.length > 0) {
+                getChatData(array[0]).then((chat) => {
+                  let answer = chat[array[1] + 1].message;
+                  console.log("predict", chat[array[1] + 1].message);
+                  updateChat(answer, room, "BOT", admin, time, date);
+                  SendChatData(room);
+                });
+              }
+            });
+          });
+          // SendChatData(room);
         });
-        // await SendChatData(room);
       });
 
       //Bot Functions
       let preAnswer = "";
       messageCheck = msg;
-      socket.on("send-bot", (question, answer, admin) => {
-        console.log("recived");
-        CreateAnswer(question, answer, admin).then(console.log("answer saved"));
-      });
-
-      socket.on("answer_bot", (question) => {
-        SearchForAnswer(question).then(async (answer) => {
-          if (answer !== false && answer !== preAnswer) {
-            console.log(answer);
-            updateChat(answer, room, "BOT", admin, time, date).then(() => {
-              const botReplay = [{ sender: "BOT", message: answer }];
-              socket.join(room);
-              io.to(room).emit("chat message", botReplay);
-              SendChatData(room);
-              preAnswer = answer;
-            });
-          }
-        });
-        // SendChatData(room);
-      });
     }
   });
   let prevRoom = "";
