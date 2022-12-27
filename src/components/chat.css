@@ -273,7 +273,7 @@ body {
 
 .time {
     font-size: 10px;
-    color:lightgrey;
+    color: #2d2b2b;
     margin-bottom:10px;
 
 }
@@ -450,4 +450,12 @@ body {
 @media screen and (max-height: 450px) {
     .sidenav {padding-top: 15px;}
     .sidenav a {font-size: 18px;}
+}
+.botChange {
+    font-size:15px;
+    color:darkgrey;
+    color:darkgrey;
+}
+.disNone {
+    display:none;
 }

@@ -87,10 +87,7 @@ io.on("connection", (socket) => {
       const message = [
         { sender: sender, message: msg, time: time, date: date },
       ];
-      console.log("ok i tried", sender);
-      console.log("this is 1", msg);
       updateChat(msg, room, sender, admin, time, date).then(() => {
-        console.log("this is 2", msg);
         getChatData(room).then(async (chats) => {
           if (chats) {
             Array.prototype.push.apply(chats, message);
@@ -103,22 +100,27 @@ io.on("connection", (socket) => {
             console.log(false);
           }
           // await SendChatData(room);
-          await socket.on("answer_bot", (question) => {
-            ML(question, chats).then((array) => {
-              if (array?.length > 0) {
-                getChatData(array[0]).then((chat) => {
-                  let answer = chat[array[1] + 1].message;
-                  console.log("predict", chat[array[1] + 1].message);
-                  updateChat(answer, room, "BOT", admin, time, date);
-                  SendChatData(room);
-                });
-              }
-            });
-          });
-          // SendChatData(room);
         });
       });
-
+      socket.on("answer_bot", (question) => {
+        ML(question, chat).then((array) => {
+          if (array?.length > 0) {
+            getChatData(array[0]).then(async (chat) => {
+              let answer = chat[array[1] + 1]?.message;
+              console.log("predict", answer);
+              updateChat(answer, room, "BOT", admin, time, date).then(
+                async () => {
+                  const botReplay = [{ sender: "BOT", message: answer }];
+                  socket.join(room);
+                  io.to(room).emit("chat message", botReplay);
+                  await SendChatData(room);
+                }
+              );
+            });
+          }
+        });
+      });
+      // SendChatData(room);
       //Bot Functions
       let preAnswer = "";
       messageCheck = msg;
@@ -153,14 +155,14 @@ io.on("connection", (socket) => {
   function SendAllUsers() {
     getAllUsersData()
       .then((list) => {
+        getInactiveChats().then((inactive) => {
+          io.sockets.emit("inactive-chats", inactive);
+        });
         socket.emit("chat-list", list);
       })
       .catch((err) => {
         console.log(err + "in chats");
       });
-    getInactiveChats().then((inactive) => {
-      io.sockets.emit("inactive-chats", inactive);
-    });
   }
   SendAllUsers();
 

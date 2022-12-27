@@ -3,6 +3,7 @@ import { io } from "socket.io-client";
 import React, { useContext, useEffect, useState } from "react";
 import { GetData } from "../values";
 import SendMessage from "../handles/sendMessage";
+import Contain from "./Container";
 
 export default function UserChat() {
   const [socket, setSocket] = useState();
@@ -48,45 +49,15 @@ export default function UserChat() {
       socket?.emit("chat message", input, userId, userId);
       socket?.emit("answer_bot", input);
       inputat.value = " ";
-      setInput("");
     }
     // console.log(input);
   }
 
   return (
     <div className="container">
-      <div className="row">
-        <nav className="menu">
-          <ul className="items">
-            <li className="item">
-              <i className="fa fa-home" aria-hidden="true"></i>
-            </li>
-            <li className="item">
-              <i className="fa fa-user" aria-hidden="true"></i>
-            </li>
-            <li className="item">
-              <i className="fa fa-pencil" aria-hidden="true"></i>
-            </li>
-            <li className="item item-active">
-              <i className="fa fa-commenting" aria-hidden="true"></i>
-            </li>
-            <li className="item">
-              <i className="fa fa-file" aria-hidden="true"></i>
-            </li>
-            <li className="item">
-              <i className="fa fa-cog" aria-hidden="true"></i>
-            </li>
-          </ul>
-        </nav>
+      <div className={"row"}>
+        <Contain />
 
-        <section className="discussions">
-          <div className="discussion search">
-            <div className="searchbar">
-              <i className="fa fa-search" aria-hidden="true"></i>
-              <input type="text" placeholder="Search..."></input>
-            </div>
-          </div>
-        </section>
         <section className="chat">
           <div className="header-chat">
             <i className="icon fa fa-user-o" aria-hidden="true"></i>

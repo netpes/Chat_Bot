@@ -6,13 +6,16 @@ export default function SendMessage(props) {
   let center = false;
   const { userName, setUserName } = useContext(GetData);
   const { userId, setUserId } = useContext(GetData);
+  let botChange = false;
 
-  //if date is differente write the date span (JS change class to active)
   let sender;
   if (props.values.sender) {
     sender = props.values.sender;
     if (sender === userName || userId === sender) {
       center = true;
+    }
+    if (sender === "BOT") {
+      botChange = true;
     }
   } else {
     sender = "just fuck dont send";
@@ -21,6 +24,7 @@ export default function SendMessage(props) {
   return (
     <div className={center ? "message senderInput" : "message"}>
       <span className={center ? "text text-only" : "text"}>
+        <span className={botChange ? "botChange" : "disNone"}>{sender}</span>
         <p>{props.values.message}</p>
         <p className="time"> {props.values.time}</p>
       </span>
