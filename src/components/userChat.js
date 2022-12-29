@@ -3,14 +3,48 @@ import { io } from "socket.io-client";
 import React, { useContext, useEffect, useState } from "react";
 import { GetData } from "../values";
 import SendMessage from "../handles/sendMessage";
-import Contain from "./Container";
-
+import Box from "@mui/material/Box";
+import CssBaseline from "@mui/material/CssBaseline";
+import {
+  AppBar,
+  Divider,
+  Drawer,
+  FilledInput,
+  FormControl,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  Switch,
+  TextField,
+  Toolbar,
+} from "@mui/material";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
 export default function UserChat() {
   const [socket, setSocket] = useState();
   const { userId, setUserId } = useContext(GetData);
   const [giveChat, setGiveChat] = useState([]);
-  const inputat = document.getElementById("input");
+  const inputat = document.getElementById("filled-adornment-amount");
   const [input, setInput] = useState();
+  const drawerWidth = 240;
+  const chat = document.querySelectorAll(".message");
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entries) => {
+        entries.target.classList.toggle("show", entries.isIntersecting);
+      });
+    },
+    {
+      rootMargin: "-50px",
+    }
+  );
+  chat.forEach((chats) => {
+    observer.observe(chats);
+  });
+
   let prevMsg = "";
   useEffect(() => {
     setSocket(
@@ -55,18 +89,42 @@ export default function UserChat() {
 
   return (
     <div className="container">
-      <div className={"row"}>
-        <Contain />
-
+      <div className="row">
+        <section className="discussions">
+          <div className="discussion search"></div>
+          <Box sx={{ display: "flex" }}>
+            <CssBaseline />
+            <AppBar
+              position="fixed"
+              sx={{
+                width: `calc(100% - ${drawerWidth}px)`,
+                ml: `${drawerWidth}px`,
+              }}
+            >
+              <Toolbar>
+                <Typography variant="h6" noWrap component="div">
+                  Chats with Customer Service
+                </Typography>
+              </Toolbar>
+            </AppBar>
+            <Drawer
+              sx={{
+                width: drawerWidth,
+                flexShrink: 0,
+                "& .MuiDrawer-paper": {
+                  width: drawerWidth,
+                  boxSizing: "border-box",
+                  scrollbarWidth: "0",
+                },
+              }}
+              variant="permanent"
+              anchor="left"
+            >
+              <Divider />
+            </Drawer>
+          </Box>
+        </section>
         <section className="chat">
-          <div className="header-chat">
-            <i className="icon fa fa-user-o" aria-hidden="true"></i>
-            <p className="name">Chat support</p>
-            <i
-              className="icon clickable fa fa-ellipsis-h right"
-              aria-hidden="true"
-            ></i>
-          </div>
           <div className="messages-chat">
             {/* eslint-disable-next-line array-callback-return */}
             {giveChat.map((a, index) => {
@@ -88,25 +146,39 @@ export default function UserChat() {
           <form action="adminChat" onSubmit={HandleSub}>
             <input id="room" autoComplete="off" />
             <div className="footer-chat">
-              <button
-                className="icon fa fa-smile-o clickable mysub"
-                type={"submit"}
-              ></button>
-              <input
-                type="text"
-                className="write-message"
-                placeholder="Type your message here"
-                id="input"
-                onChange={(e) => setInput(e.target.value)}
-                autoComplete="off"
-              ></input>
-              <i
-                className="icon send fa fa-paper-plane-o clickable"
-                aria-hidden="true"
-              ></i>
+              <FormControl fullWidth sx={{ m: 1 }} variant="filled">
+                <InputLabel htmlFor="filled-adornment-amount">
+                  Type Your Message Here
+                </InputLabel>
+                <FilledInput
+                  onChange={(e) => setInput(e.target.value)}
+                  id="filled-adornment-amount"
+                  startAdornment={
+                    <InputAdornment position="start"></InputAdornment>
+                  }
+                />
+                <Button type={"submit"} variant="contained" color="success">
+                  Success
+                </Button>
+              </FormControl>
             </div>
           </form>
         </section>
+        <Drawer
+          sx={{
+            width: drawerWidth,
+            flexShrink: 0,
+            "& .MuiDrawer-paper": {
+              width: drawerWidth,
+              boxSizing: "border-box",
+              scrollbarWidth: "0",
+            },
+          }}
+          variant="permanent"
+          anchor="left"
+        >
+          <Divider />
+        </Drawer>
       </div>
     </div>
   );

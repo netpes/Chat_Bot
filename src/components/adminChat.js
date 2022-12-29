@@ -4,6 +4,30 @@ import { useEffect, useState, useContext, createRef } from "react";
 import React from "react";
 import { GetData } from "../values";
 import SendMessage from "../handles/sendMessage";
+import CommentIcon from "@mui/icons-material/Comment";
+import {
+  AppBar,
+  Divider,
+  Drawer,
+  FilledInput,
+  FormControl,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Switch,
+  TextField,
+  Toolbar,
+} from "@mui/material";
+import List from "@mui/material/List";
+import Typography from "@mui/material/Typography";
+import CssBaseline from "@mui/material/CssBaseline";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import SubForm from "./handle/subform";
 
 export default function AdminChat() {
   const { userName, setUserName } = useContext(GetData);
@@ -20,9 +44,22 @@ export default function AdminChat() {
   const [toggle, setToggle] = useState(false);
   const [Bar, setBar] = useState();
   const searchRef = createRef();
+  const inputat = document.getElementById("filled-adornment-amount");
 
-  const inputat = document.getElementById("input");
-  // const inputRoom = document.getElementById("room");
+  const chat = document.querySelectorAll(".message");
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entries) => {
+        entries.target.classList.toggle("show", entries.isIntersecting);
+      });
+    },
+    {
+      rootMargin: "-50px",
+    }
+  );
+  chat.forEach((chats) => {
+    observer.observe(chats);
+  });
 
   useEffect(() => {
     setSocket(
@@ -57,9 +94,9 @@ export default function AdminChat() {
     ul = document.getElementById("myUL");
     li = ul.getElementsByTagName("li");
     for (i = 0; i < li.length; i++) {
-      a = li[i].getElementsByTagName("button")[0];
-      txtValue = a.textContent || a.value;
-      if (txtValue.indexOf(filter) > -1) {
+      a = li[i].getElementsByTagName("ListItemText")[0];
+      txtValue = a?.textContent || a?.innerHTML || a?.innerText;
+      if (txtValue?.indexOf(filter) > -1) {
         li[i].style.display = "";
       } else {
         li[i].style.display = "none";
@@ -80,13 +117,11 @@ export default function AdminChat() {
   }
   function DeActive(bar) {
     console.log(bar);
-    socket.emit("active-action", bar);
-    socket.emit("refresh");
-    if (toggle == true) {
-      document.getElementById("archiveButton").innerText = "Open";
+    socket?.emit("active-action", bar);
+    socket?.emit("refresh");
+    if (toggle === true) {
       setToggle(false);
     } else {
-      document.getElementById("archiveButton").innerText = "Close";
       setToggle(true);
     }
   }
@@ -127,88 +162,95 @@ export default function AdminChat() {
       setList(prevList);
     }
   }
-  function OpenNav() {
-    document.getElementById("mySidenav").style.width = "35%";
-  }
+  const drawerWidth = 240;
 
-  function CloseNav() {
-    document.getElementById("mySidenav").style.width = "0";
-  }
   return (
     <div className="container">
       <div className="row">
-        <nav className="menu">
-          <ul className="items">
-            <li className="item">
-              <button onClick={OpenNav}>&#9776; open</button>
-            </li>
-            <li className="item">
-              <button
-                className="fa fa-user"
-                aria-hidden="true"
-                onClick={ChangeList}
-              >
-                View Inactive Chats
-              </button>
-            </li>
-            <li className="item">
-              <i className="fa fa-pencil" aria-hidden="true"></i>
-            </li>
-            <li className="item item-active">
-              <i className="fa fa-commenting" aria-hidden="true"></i>
-            </li>
-            <li className="item">
-              <i className="fa fa-file" aria-hidden="true"></i>
-            </li>
-            <li className="item">
-              <i className="fa fa-cog" aria-hidden="true"></i>
-            </li>
-          </ul>
-        </nav>
-        <div id="mySidenav" className="sidenav">
-          <a className="closebtn" onClick={CloseNav}>
-            &times;
-          </a>
-        </div>
         <section className="discussions">
-          <div className="discussion search">
-            <div className="searchbar">
-              <i className="fa fa-search" aria-hidden="true"></i>
-              <input
-                ref={searchRef}
-                id={"myInput"}
-                type="text"
-                onChange={Search}
-                placeholder="Search..."
-              ></input>
-            </div>
-          </div>
-          <ul id="myUL">
-            {list.map((user, index) => (
-              <li index={index}>
-                <div className="discussion message-active">
-                  <div className="desc-contact">
-                    <button onClick={() => ChangeRoom(user.id, user.name)}>
-                      <p className="name">{user.name}</p>
-                      <p className="message">Enter Here Last Message</p>
-                    </button>
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
+          <div className="discussion search"></div>
+          <Box sx={{ display: "flex" }}>
+            <CssBaseline />
+            <AppBar
+              position="fixed"
+              sx={{
+                width: `calc(100% - ${drawerWidth}px)`,
+                ml: `${drawerWidth}px`,
+              }}
+            >
+              <Toolbar>
+                <Typography variant="h6" noWrap component="div">
+                  Chats with {chatter}
+                </Typography>
+                <Switch
+                  sx={{ position: "absolute", right: "0", float: "right" }}
+                  onChange={() => DeActive(Bar)}
+                  inputProps={{ "aria-label": "controlled" }}
+                />
+              </Toolbar>
+            </AppBar>
+            <Drawer
+              sx={{
+                width: drawerWidth,
+                flexShrink: 0,
+                "& .MuiDrawer-paper": {
+                  width: drawerWidth,
+                  boxSizing: "border-box",
+                  scrollbarWidth: "0",
+                },
+              }}
+              variant="permanent"
+              anchor="left"
+            >
+              <Button variant="outlined" onClick={ChangeList} disableElevation>
+                Change List
+              </Button>
+
+              <Divider />
+
+              <ul id="myUL">
+                <List
+                  sx={{
+                    width: "100%",
+                    maxWidth: 360,
+                    bgcolor: "background.paper",
+                  }}
+                >
+                  {list.map((user, index) => {
+                    const labelId = `checkbox-list-label-${index}`;
+
+                    return (
+                      <li>
+                        <ListItem
+                          key={index}
+                          secondaryAction={
+                            <IconButton edge="end" aria-label="comments">
+                              <CommentIcon />
+                            </IconButton>
+                          }
+                          disablePadding
+                        >
+                          <ListItemButton
+                            role={undefined}
+                            onClick={() => ChangeRoom(user.id, user.name)}
+                            dense
+                          >
+                            <ListItemText
+                              id={labelId}
+                              primary={user.name}
+                              value={user.name}
+                            />
+                          </ListItemButton>
+                        </ListItem>
+                      </li>
+                    );
+                  })}
+                </List>
+              </ul>
+            </Drawer>
+          </Box>
         </section>
         <section className="chat">
-          <div className="header-chat">
-            <button id={"archiveButton"} onClick={() => DeActive(Bar)}>
-              Close
-            </button>
-            <p className="name">{chatter}</p>
-            <i
-              className="icon clickable fa fa-ellipsis-h right"
-              aria-hidden="true"
-            ></i>
-          </div>
           <div className="messages-chat">
             {/* eslint-disable-next-line array-callback-return */}
             {giveChat.map((a, index) => {
@@ -228,25 +270,7 @@ export default function AdminChat() {
             })}
           </div>
           <form action="adminChat" onSubmit={HandleSub}>
-            <input id="room" autoComplete="off" />
-            <div className="footer-chat">
-              <button
-                className="icon fa fa-smile-o clickable mysub"
-                type={"submit"}
-              ></button>
-              <input
-                type="text"
-                className="write-message"
-                placeholder="Type your message here"
-                id="input"
-                onChange={(e) => setInput(e.target.value)}
-                autoComplete="off"
-              ></input>
-              <i
-                className="icon send fa fa-paper-plane-o clickable"
-                aria-hidden="true"
-              ></i>
-            </div>
+            <SubForm setInput={setInput} />
           </form>
         </section>
       </div>
