@@ -9,17 +9,20 @@ const bodyParser = require("body-parser");
 const users = require("./views/user");
 const multer = require("multer");
 const forms = multer();
+require("dotenv").config();
 const {
-  getAllUsersId,
-  getAllUsersName,
+  getAllUsersData,
+  getInactiveChats,
+  setActive,
 } = require("./controllers/server_actions");
 const {
   updateChat,
   getChatData,
   convertSender,
+  ML,
 } = require("./controllers/chatController");
 const dateantime = require("date-and-time");
-
+require("events").EventEmitter.defaultMaxListeners = 15;
 app.set("views", __dirname + "/views");
 app.engine("html", require("ejs").renderFile);
 
@@ -31,8 +34,8 @@ app.use(cors({ origin: " http://localhost:3000" }));
 app.use("/", users);
 
 // mongo connection
-const url =
-  "mongodb+srv://netpes:netpes@cluster0.cnxmrap.mongodb.net/?retryWrites=true&w=majority";
+mongoose.set("strictQuery", true);
+const url = process.env.MONGOOSE_URL;
 mongoose?.connect(url, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -48,7 +51,7 @@ app.get("/", (req, res) => {
 
 //SOCKET-IO:
 
-//socket reacting to connection/disconnection
+// socket reacting to connection/disconnection
 io.on("connection", (socket) => {
   console.log("a user connected");
   socket.on("disconnect", () => {
@@ -56,78 +59,122 @@ io.on("connection", (socket) => {
   });
 });
 
+const date = dateantime.format(new Date(), "DD/MM/YYYY");
+const time = dateantime.format(new Date(), "HH:mm");
+let chat = [];
+let sender = "";
 let messageCheck = "";
+
 io.on("connection", (socket) => {
-  const date = dateantime.format(new Date(), "DD/MM/YYYY");
-  const time = dateantime.format(new Date(), "HH:mm");
-  let sender = "";
-  let rooma = "";
-
-  socket.on("chat message", (msg, room, senderId, userId, admin) => {
-    console.log("this is room" + room);
-    socket.emit("who-is-connected", room);
-
-    if (msg === messageCheck) console.log("stopped");
+  //
+  socket.on("chat message", async (msg, room, senderId, admin) => {
     if (!room) return false;
-    io.to(room).emit("chat message", msg, room);
-    if (room) {
+    if (msg === messageCheck) return console.log("stopped");
+
+    if (room && senderId) {
       console.log(senderId, "the id of the sender");
       if (senderId) {
-        convertSender(senderId.toString()).then((id) => {
+        await convertSender(senderId).then((id) => {
           sender = id.name;
+          console.log(true, false);
         });
-      } else {
-        sender = "anon";
       }
 
       const message = [
         { sender: sender, message: msg, time: time, date: date },
       ];
-
       updateChat(msg, room, sender, admin, time, date).then(() => {
-        getChatData(room).then((chats) => {
+        getChatData(room).then(async (chats) => {
           if (chats) {
             Array.prototype.push.apply(chats, message);
-            io.sockets.emit("send-chats", chats);
+            chat = chats;
             console.log(true);
+
+            io.to(room).emit("send-chats", chat);
           } else {
-            io.sockets.emit("send-chats", message);
+            chat = message;
             console.log(false);
+          }
+          // await SendChatData(room);
+        });
+      });
+      socket.on("answer_bot", (question) => {
+        ML(question, chat).then((array) => {
+          if (array?.length > 0) {
+            getChatData(array[0]).then(async (chat) => {
+              let answer = chat[array[1] + 1]?.message;
+              console.log("predict", answer);
+              updateChat(answer, room, "BOT", admin, time, date).then(
+                async () => {
+                  const botReplay = [{ sender: "BOT", message: answer }];
+                  socket.join(room);
+                  io.to(room).emit("chat message", botReplay);
+                  await SendChatData(room);
+                }
+              );
+            });
           }
         });
       });
+      // SendChatData(room);
+      //Bot Functions
+      let preAnswer = "";
+      messageCheck = msg;
     }
-    messageCheck = msg;
   });
-
+  let prevRoom = "";
   //join a room
   socket.on("join-room", (room) => {
+    socket.leave(prevRoom);
     if (room) {
       socket.join(room);
       console.log("this is the part of  my " + room);
-      getChatData(room)
-        .then((chats) => {
-          if (chats) {
-            io.emit("send-chats", chats);
-          } else {
-            io.emit("send-chats", "");
-          }
-        })
-        .catch((err) => {
-          console.log(`error ${err} in chats`);
-        });
+      SendChatData(room);
       socket.emit("message room", room);
+      prevRoom = room;
     }
+    socket.on("refresh", () => {
+      SendChatData(room);
+      SendAllUsers();
+    });
+    socket.on("active-action", (bar) => {
+      setActive(bar);
+      SendChatData(room);
+      SendAllUsers();
+      getInactiveChats().then((inactive) => {
+        io.sockets.emit("inactive-chats", inactive);
+      });
+    });
   });
 
   //get all the usersId
-  getAllUsersId()
-    .then((list) => {
-      socket.emit("chat-list", list);
-    })
-    .catch((err) => {
-      console.log(err + "in chats");
-    });
+  function SendAllUsers() {
+    getAllUsersData()
+      .then((list) => {
+        getInactiveChats().then((inactive) => {
+          io.sockets.emit("inactive-chats", inactive);
+        });
+        socket.emit("chat-list", list);
+      })
+      .catch((err) => {
+        console.log(err + "in chats");
+      });
+  }
+  SendAllUsers();
+
+  function SendChatData(room) {
+    getChatData(room)
+      .then((chats) => {
+        if (chats) {
+          socket.emit("send-chats", chats);
+        } else {
+          socket.emit("send-chats", "");
+        }
+      })
+      .catch((err) => {
+        console.log(`error ${err} in chats`);
+      });
+  }
 });
 
 http.listen(port, () => {

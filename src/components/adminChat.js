@@ -1,27 +1,66 @@
-import "./userChat.css";
+import "./chat.css";
 import { io } from "socket.io-client";
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, createRef } from "react";
 import React from "react";
 import { GetData } from "../values";
 import SendMessage from "../handles/sendMessage";
-import { useRef } from "react";
+import CommentIcon from "@mui/icons-material/Comment";
+import {
+  AppBar,
+  Divider,
+  Drawer,
+  FilledInput,
+  FormControl,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Switch,
+  TextField,
+  Toolbar,
+} from "@mui/material";
+import List from "@mui/material/List";
+import Typography from "@mui/material/Typography";
+import CssBaseline from "@mui/material/CssBaseline";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import SubForm from "./handle/subform";
 
 export default function AdminChat() {
-  const [socket, setSocket] = useState();
-  const { userId, setUserId } = useContext(GetData);
   const { userName, setUserName } = useContext(GetData);
-  const [Bar, setBar] = useState();
-  const [list, setList] = useState([{}]);
-  const [sender, setSender] = useState([]);
-  //when possible get user id to room
-  const [admin, setAdmin] = useState(userId);
-  const [connected, setConnected] = useState([]);
-  const [input, setInput] = useState();
   const [giveChat, setGiveChat] = useState([]);
-  const [isConnected, setIsConnected] = useState(false);
-  const ref = useRef();
-  const inputat = document.getElementById("input");
-  const inputRoom = document.getElementById("room");
+  const { userId, setUserId } = useContext(GetData);
+  const [list, setList] = useState([]);
+  const [admin, setAdmin] = useState(userId);
+  const [inactive, setInactive] = useState([]);
+  const [chatter, setChatter] = useState();
+  const [search, setSearch] = useState();
+  const [socket, setSocket] = useState();
+  const [input, setInput] = useState();
+  const [prevList, setprevList] = useState([]);
+  const [toggle, setToggle] = useState(false);
+  const [Bar, setBar] = useState();
+  const searchRef = createRef();
+  const inputat = document.getElementById("filled-adornment-amount");
+
+  const chat = document.querySelectorAll(".message");
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entries) => {
+        entries.target.classList.toggle("show", entries.isIntersecting);
+      });
+    },
+    {
+      rootMargin: "-50px",
+    }
+  );
+  chat.forEach((chats) => {
+    observer.observe(chats);
+  });
+
   useEffect(() => {
     setSocket(
       io.connect("http://localhost:2000", { transports: ["websocket"] })
@@ -29,97 +68,211 @@ export default function AdminChat() {
   }, []);
   useEffect(() => {
     socket?.on("connect", () => {
-      setIsConnected(true);
-      // socket?.on("message room", (msg) => {
-      //   msg = `joined to room ${msg}`;
-      //   setGiveChat((prev) => [...prev, msg]);
-      // });
-      socket?.on("chat message", function (msg, senderId) {
-        setGiveChat((prev) => [...prev, msg]);
-        setSender((prev) => [...prev, senderId]);
-        window.scrollTo(0, document.body.scrollHeight);
+      socket.on("inactive-chats", (inactiveList) => {
+        setInactive(inactiveList);
       });
       //getting chats from server
-      socket.on("send-chats", (chats) => {
+      socket?.on("send-chats", (chats) => {
         setGiveChat([...chats]);
-        // console.log("this is chats", chats);
+
+        // sort list by last message
+        console.log("this is chats", chats);
       });
-      // socket.on("who-is-connected", (user) => {
-      //   setConnected((prev) => [...prev, user]);
-      //   console.log(user + " connected");
-      // });
       socket?.on("chat-list", (userdata) => {
         setList(userdata);
+        setprevList(userdata);
       });
     });
-  }, [isConnected, socket]);
+  }, [socket]);
 
+  function Search(e) {
+    let filter, ul, li, a, i, txtValue, input;
+    input = document.getElementById("myInput");
+    setSearch(e.target.value);
+    console.log(search);
+    filter = searchRef.current.value;
+    ul = document.getElementById("myUL");
+    li = ul.getElementsByTagName("li");
+    for (i = 0; i < li.length; i++) {
+      a = li[i].getElementsByTagName("ListItemText")[0];
+      txtValue = a?.textContent || a?.innerHTML || a?.innerText;
+      if (txtValue?.indexOf(filter) > -1) {
+        li[i].style.display = "";
+      } else {
+        li[i].style.display = "none";
+      }
+    }
+  }
+
+  //for bot
+  function LastChat(chat) {
+    let i = chat.length - 1;
+    while (chat[i].sender === userName) {
+      if (chat[i].message) {
+        console.log(chat[i].sender);
+      }
+      i = i - 1;
+    }
+    return chat[i].message;
+  }
+  function DeActive(bar) {
+    console.log(bar);
+    socket?.emit("active-action", bar);
+    socket?.emit("refresh");
+    if (toggle === true) {
+      setToggle(false);
+    } else {
+      setToggle(true);
+    }
+  }
   function HandleSub(event) {
     event.preventDefault();
-    ref.current.scrollIntoView({ behavior: "smooth" });
-    console.log(admin);
+    const message = { message: input, sender: admin };
+    setGiveChat((prev) => [...prev, message]);
 
-    if (input) {
-      socket?.emit(
-        "chat message",
-        input,
-        Bar,
-        admin, //who send the message?
-        inputRoom.value,
-        admin
-      );
+    if (input && admin && userName != null) {
+      //need to get user last message before input
+      console.log(LastChat(giveChat, chatter));
+      socket.emit("send-bot", LastChat(giveChat, chatter), input, userName);
+      if (userId) {
+        socket?.emit(
+          "chat message",
+          input,
+          Bar,
+          userId, //who send the message?
+          admin
+        );
+      }
       inputat.value = " ";
       setInput("  ");
     }
   }
 
-  function ChangeRoom(props, e) {
-    e.preventDefault();
-    ref.current.scrollIntoView({ behavior: "smooth" });
-    document.getElementById("room").value = props;
-    socket.emit("join-room", props);
-    setBar(props);
+  function ChangeRoom(id, name) {
+    document.getElementById("room").value = id;
+    socket.emit("join-room", id);
+    setBar(id);
+    setChatter(name);
     // console.log(list[props]);
   }
+  function ChangeList() {
+    if (prevList == list) {
+      setList(inactive);
+    } else {
+      setList(prevList);
+    }
+  }
+  const drawerWidth = 240;
 
   return (
-    <div className={"chats"}>
-      <ul id="messages">
-        {giveChat.map((a, index) => {
-          if (a.message) {
-            console.log(a.message);
-            return (
-              <SendMessage
-                values={{
-                  message: a.message,
-                  index,
-                  sender: a.sender,
-                  time: a.time,
-                  date: a.date,
-                  myname: userName,
-                }}
-              />
-            );
-          }
-        })}
-        <div ref={ref}></div>
-      </ul>
-      <form id="form" action="" onSubmit={HandleSub}>
-        <input id="room" autoComplete="off" />
+    <div className="container">
+      <div className="row">
+        <section className="discussions">
+          <div className="discussion search"></div>
+          <Box sx={{ display: "flex" }}>
+            <CssBaseline />
+            <AppBar
+              position="fixed"
+              sx={{
+                width: `calc(100% - ${drawerWidth}px)`,
+                ml: `${drawerWidth}px`,
+              }}
+            >
+              <Toolbar>
+                <Typography variant="h6" noWrap component="div">
+                  Chats with {chatter}
+                </Typography>
+                <Switch
+                  sx={{ position: "absolute", right: "0", float: "right" }}
+                  onChange={() => DeActive(Bar)}
+                  inputProps={{ "aria-label": "controlled" }}
+                />
+              </Toolbar>
+            </AppBar>
+            <Drawer
+              sx={{
+                width: drawerWidth,
+                flexShrink: 0,
+                "& .MuiDrawer-paper": {
+                  width: drawerWidth,
+                  boxSizing: "border-box",
+                  scrollbarWidth: "0",
+                },
+              }}
+              variant="permanent"
+              anchor="left"
+            >
+              <Button variant="outlined" onClick={ChangeList} disableElevation>
+                Change List
+              </Button>
 
-        <input
-          id="input"
-          onChange={(e) => setInput(e.target.value)}
-          autoComplete="off"
-        />
-        <button type={"submit"}>Send</button>
-      </form>
-      <div className={"chatList"}>
-        {list.map((user, index) => (
-          <button index={index} onClick={(e) => ChangeRoom(user.id, e)}>
-            {user.name}
-          </button>
-        ))}
+              <Divider />
+
+              <ul id="myUL">
+                <List
+                  sx={{
+                    width: "100%",
+                    maxWidth: 360,
+                    bgcolor: "background.paper",
+                  }}
+                >
+                  {list.map((user, index) => {
+                    const labelId = `checkbox-list-label-${index}`;
+
+                    return (
+                      <li>
+                        <ListItem
+                          key={index}
+                          secondaryAction={
+                            <IconButton edge="end" aria-label="comments">
+                              <CommentIcon />
+                            </IconButton>
+                          }
+                          disablePadding
+                        >
+                          <ListItemButton
+                            role={undefined}
+                            onClick={() => ChangeRoom(user.id, user.name)}
+                            dense
+                          >
+                            <ListItemText
+                              id={labelId}
+                              primary={user.name}
+                              value={user.name}
+                            />
+                          </ListItemButton>
+                        </ListItem>
+                      </li>
+                    );
+                  })}
+                </List>
+              </ul>
+            </Drawer>
+          </Box>
+        </section>
+        <section className="chat">
+          <div className="messages-chat">
+            {/* eslint-disable-next-line array-callback-return */}
+            {giveChat.map((a, index) => {
+              if (a.message) {
+                return (
+                  <SendMessage
+                    values={{
+                      message: a.message,
+                      index,
+                      sender: a.sender,
+                      time: a.time,
+                      date: a.date,
+                    }}
+                  />
+                );
+              }
+            })}
+          </div>
+          <form action="adminChat" onSubmit={HandleSub}>
+            <SubForm setInput={setInput} />
+          </form>
+        </section>
       </div>
     </div>
   );

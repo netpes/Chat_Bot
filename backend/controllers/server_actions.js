@@ -1,6 +1,6 @@
 const userSchema = require("../schema/signupSchema");
-async function getAllUsersId() {
-  const users = await userSchema.find();
+async function getAllUsersData() {
+  const users = await userSchema.find({ active: true });
   if (users) {
     const Fusers = users.map((user) => {
       return { name: user.name, id: user._id };
@@ -9,12 +9,26 @@ async function getAllUsersId() {
     return Fusers;
   }
 }
-
-async function getAllUsersName() {
-  const users = await userSchema.find({}, `_id`);
+async function getInactiveChats() {
+  const users = await userSchema.find({ active: false });
   if (users) {
-    return users.map((user) => user.name.toString());
+    const Fusers = users.map((user) => {
+      return { name: user.name, id: user._id };
+    });
+
+    return Fusers;
   }
 }
+async function setActive(id) {
+  const user = await userSchema.findById(id);
+  if (user.active === true) {
+    console.log("changed to false");
+    user.active = false;
+  } else {
+    console.log("changed to true");
+    user.active = true;
+  }
+  user.save();
+}
 
-module.exports = { getAllUsersId, getAllUsersName };
+module.exports = { getAllUsersData, setActive, getInactiveChats };

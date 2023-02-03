@@ -1,18 +1,51 @@
 import "./userChat.css";
 import { io } from "socket.io-client";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { GetData } from "../values";
 import SendMessage from "../handles/sendMessage";
-
+import Box from "@mui/material/Box";
+import CssBaseline from "@mui/material/CssBaseline";
+import {
+  AppBar,
+  Divider,
+  Drawer,
+  FilledInput,
+  FormControl,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  Switch,
+  TextField,
+  Toolbar,
+} from "@mui/material";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
 export default function UserChat() {
   const [socket, setSocket] = useState();
   const { userId, setUserId } = useContext(GetData);
-  const [Bar, setBar] = useState();
-  const [mes, setMes] = useState([{}]);
-  const inputat = document.getElementById("input");
-  // const form = document.getElementById('form');
+  const [giveChat, setGiveChat] = useState([]);
+  const inputat = document.getElementById("filled-adornment-amount");
   const [input, setInput] = useState();
+  const drawerWidth = 240;
+  const chat = document.querySelectorAll(".message");
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entries) => {
+        entries.target.classList.toggle("show", entries.isIntersecting);
+      });
+    },
+    {
+      rootMargin: "-50px",
+    }
+  );
+  chat.forEach((chats) => {
+    observer.observe(chats);
+  });
 
+  let prevMsg = "";
   useEffect(() => {
     setSocket(
       io.connect("http://localhost:2000", { transports: ["websocket"] })
@@ -21,58 +54,132 @@ export default function UserChat() {
 
   useEffect(() => {
     socket?.on("connect", () => {
-      // console.log(userId)
       socket.emit("join-room", userId);
-      socket?.on("chat message", function (msg) {
-        setMes((prev) => [...prev, msg]);
-
-        window.scrollTo(0, document.body.scrollHeight);
+      //convert to obj
+      socket?.on("chat message", (msg) => {
+        console.log("why not? ", msg);
+        if (prevMsg !== msg) {
+          setGiveChat((prev) => [...prev, msg]);
+          console.log(giveChat);
+          window.scrollTo(0, document.body.scrollHeight);
+          prevMsg = msg;
+        }
       });
-      socket?.on("send-chats", (chats) => {
-        setMes([...chats]);
+
+      //getting chats from server
+      socket.on("send-chats", (chats) => {
+        setGiveChat([...chats]);
+        console.log("this is chats", chats);
       });
     });
   }, [socket]);
 
-  function handleSub(event) {
+  function HandleSub(event) {
     event.preventDefault();
-    setMes((prev) => [...prev, input]);
-    if (input) {
-      socket.emit("chat message", input, userId, userId);
+    const message = { message: input, sender: userId };
+    setGiveChat((prev) => [...prev, message]);
+
+    if (input !== null) {
+      socket?.emit("chat message", input, userId, userId);
+      socket?.emit("answer_bot", input);
       inputat.value = " ";
-      setInput("");
     }
-    console.log(input);
+    // console.log(input);
   }
 
   return (
-    <div className={"chats"}>
-      <ul id="messages">
-        {mes.map((a, index) => {
-          return (
-            <SendMessage
-              values={{
-                message: a.message,
-                index,
-                sender: userId,
-                time: a.time,
-                date: a.date,
+    <div className="container">
+      <div className="row">
+        <section className="discussions">
+          <div className="discussion search"></div>
+          <Box sx={{ display: "flex" }}>
+            <CssBaseline />
+            <AppBar
+              position="fixed"
+              sx={{
+                width: `calc(100% - ${drawerWidth}px)`,
+                ml: `${drawerWidth}px`,
               }}
-            />
-          );
-        })}
-      </ul>
-
-      <form id="form" action="" onSubmit={handleSub}>
-        {/*<input id="room" onChange={(e) => setBar(e?.target.value)} autoComplete="off"/>*/}
-        {/*<button onClick={CreateRoom}>make a room</button>*/}
-        <input
-          id="input"
-          onChange={(e) => setInput(e?.target.value)}
-          autoComplete="off"
-        />
-        <button type={"submit"}>Send</button>
-      </form>
+            >
+              <Toolbar>
+                <Typography variant="h6" noWrap component="div">
+                  Chats with Customer Service
+                </Typography>
+              </Toolbar>
+            </AppBar>
+            <Drawer
+              sx={{
+                width: drawerWidth,
+                flexShrink: 0,
+                "& .MuiDrawer-paper": {
+                  width: drawerWidth,
+                  boxSizing: "border-box",
+                  scrollbarWidth: "0",
+                },
+              }}
+              variant="permanent"
+              anchor="left"
+            >
+              <Divider />
+            </Drawer>
+          </Box>
+        </section>
+        <section className="chat">
+          <div className="messages-chat">
+            {/* eslint-disable-next-line array-callback-return */}
+            {giveChat.map((a, index) => {
+              if (a.message) {
+                return (
+                  <SendMessage
+                    values={{
+                      message: a.message,
+                      index,
+                      sender: a.sender,
+                      time: a.time,
+                      date: a.date,
+                    }}
+                  />
+                );
+              }
+            })}
+          </div>
+          <form action="adminChat" onSubmit={HandleSub}>
+            <input id="room" autoComplete="off" />
+            <div className="footer-chat">
+              <FormControl fullWidth sx={{ m: 1 }} variant="filled">
+                <InputLabel htmlFor="filled-adornment-amount">
+                  Type Your Message Here
+                </InputLabel>
+                <FilledInput
+                  onChange={(e) => setInput(e.target.value)}
+                  id="filled-adornment-amount"
+                  startAdornment={
+                    <InputAdornment position="start"></InputAdornment>
+                  }
+                />
+                <Button type={"submit"} variant="contained" color="success">
+                  Success
+                </Button>
+              </FormControl>
+            </div>
+          </form>
+        </section>
+        <Drawer
+          sx={{
+            width: drawerWidth,
+            flexShrink: 0,
+            "& .MuiDrawer-paper": {
+              width: drawerWidth,
+              boxSizing: "border-box",
+              scrollbarWidth: "0",
+            },
+          }}
+          variant="permanent"
+          anchor="left"
+        >
+          <Divider />
+        </Drawer>
+      </div>
     </div>
   );
 }
