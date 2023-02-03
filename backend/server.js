@@ -6,22 +6,21 @@ const io = require("socket.io")(http);
 const port = process.env.PORT || 2000;
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
-const users = require("./backend/views/user");
+const users = require("./views/user");
 const multer = require("multer");
 const forms = multer();
 require("dotenv").config();
-console.log(process.env);
 const {
   getAllUsersData,
   getInactiveChats,
   setActive,
-} = require("./backend/controllers/server_actions");
+} = require("./controllers/server_actions");
 const {
   updateChat,
   getChatData,
   convertSender,
   ML,
-} = require("./backend/controllers/chatController");
+} = require("./controllers/chatController");
 const dateantime = require("date-and-time");
 require("events").EventEmitter.defaultMaxListeners = 15;
 app.set("views", __dirname + "/views");

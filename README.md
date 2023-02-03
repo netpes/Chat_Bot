@@ -6,7 +6,7 @@
 ## Description:
 
 This is a Free RT Chat Platform, based socket.io.
-With an admin & cilent sides, and a bot that learn from the admin and users chats.
+With an admin & client sides, and a bot that learn from the admin and users chats.
 
 
 ## About the bot:
