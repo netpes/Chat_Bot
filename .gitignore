@@ -17,8 +17,9 @@
 .env.development.local
 .env.test.local
 .env.production.local
-.env MONGOOSE_URL
 .env.process
+.env.process.MONGOOSE_URL
+
 
 
 npm-debug.log*
