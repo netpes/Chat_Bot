@@ -9,17 +9,11 @@ import {
   AppBar,
   Divider,
   Drawer,
-  FilledInput,
-  FormControl,
   IconButton,
-  InputAdornment,
-  InputLabel,
   ListItem,
   ListItemButton,
-  ListItemIcon,
   ListItemText,
   Switch,
-  TextField,
   Toolbar,
 } from "@mui/material";
 import List from "@mui/material/List";
@@ -165,8 +159,8 @@ export default function AdminChat() {
   const drawerWidth = 240;
 
   return (
-    <div className="container">
-      <div className="row">
+    <div className={"fixed top-0 left-0"}>
+      <div className="row w-[100vw]">
         <section className="discussions">
           <div className="discussion search"></div>
           <Box sx={{ display: "flex" }}>
@@ -269,11 +263,11 @@ export default function AdminChat() {
               }
             })}
           </div>
-          <form action="adminChat" onSubmit={HandleSub}>
-            <SubForm setInput={setInput} />
-          </form>
         </section>
       </div>
+      <form action="adminChat" onSubmit={HandleSub}>
+        <SubForm setInput={setInput} />
+      </form>
     </div>
   );
 }

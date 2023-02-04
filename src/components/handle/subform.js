@@ -10,9 +10,9 @@ import React from "react";
 export default function SubForm(props) {
   const setInput = props.setInput;
   return (
-    <div>
+    <div className={"fixed bottom-0 object-bottom w-[100vw]"}>
       <input id="room" autoComplete="off" />
-      <div className="footer-chat">
+      <div className="footer-chat fixed">
         <FormControl fullWidth sx={{ m: 1 }} variant="filled">
           <InputLabel htmlFor="filled-adornment-amount">
             Type Your Message Here

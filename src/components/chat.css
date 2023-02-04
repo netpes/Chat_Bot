@@ -243,7 +243,7 @@ body {
     overflow-y: auto;
     overflow-x: hidden;
     margin-top: 15vh;
-    bottom: 10vh;
+    bottom: 16vh;
     max-height: 87vh;
     width: calc(100% - 245px);
     padding-left: 0;
@@ -336,6 +336,7 @@ body {
     background-color: #4f6ebd;
     position: absolute;
     right: 50px;
+    bottom:0;
     padding: 12px 12px 12px 12px;
     border-radius: 50px;
     font-size: 14pt;

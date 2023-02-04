@@ -11,14 +11,8 @@ import {
   Drawer,
   FilledInput,
   FormControl,
-  IconButton,
   InputAdornment,
   InputLabel,
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  Switch,
-  TextField,
   Toolbar,
 } from "@mui/material";
 import Typography from "@mui/material/Typography";
@@ -88,7 +82,7 @@ export default function UserChat() {
   }
 
   return (
-    <div className="container">
+    <div className={"fixed top-0 left-0"}>
       <div className="row">
         <section className="discussions">
           <div className="discussion search"></div>
@@ -143,26 +137,28 @@ export default function UserChat() {
               }
             })}
           </div>
-          <form action="adminChat" onSubmit={HandleSub}>
-            <input id="room" autoComplete="off" />
-            <div className="footer-chat">
-              <FormControl fullWidth sx={{ m: 1 }} variant="filled">
-                <InputLabel htmlFor="filled-adornment-amount">
-                  Type Your Message Here
-                </InputLabel>
-                <FilledInput
-                  onChange={(e) => setInput(e.target.value)}
-                  id="filled-adornment-amount"
-                  startAdornment={
-                    <InputAdornment position="start"></InputAdornment>
-                  }
-                />
-                <Button type={"submit"} variant="contained" color="success">
-                  Success
-                </Button>
-              </FormControl>
-            </div>
-          </form>
+          <div className={"fixed bottom-0 left-0 object-bottom w-[100vw]"}>
+            <form action="adminChat" onSubmit={HandleSub}>
+              <input id="room" autoComplete="off" />
+              <div className="footer-chat ">
+                <FormControl fullWidth sx={{ m: 1 }} variant="filled">
+                  <InputLabel htmlFor="filled-adornment-amount">
+                    Type Your Message Here
+                  </InputLabel>
+                  <FilledInput
+                    onChange={(e) => setInput(e.target.value)}
+                    id="filled-adornment-amount"
+                    startAdornment={
+                      <InputAdornment position="start"></InputAdornment>
+                    }
+                  />
+                  <Button type={"submit"} variant="contained" color="success">
+                    Success
+                  </Button>
+                </FormControl>
+              </div>
+            </form>
+          </div>
         </section>
         <Drawer
           sx={{
