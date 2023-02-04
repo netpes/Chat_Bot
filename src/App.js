@@ -5,10 +5,12 @@ import Login from "./components/login";
 import UserChat from "./components/userChat";
 import AdminChat from "./components/adminChat";
 import Inactive from "./handles/inactive";
+import LandingPage from "./components/landing";
 
 function App() {
   return (
     <Routes>
+      <Route path="/" element={<LandingPage />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/login" element={<Login />} />
       <Route path="/userChat" element={<UserChat />} />
