@@ -33,27 +33,12 @@ export default function AdminChat() {
   const [chatter, setChatter] = useState();
   const [search, setSearch] = useState();
   const [socket, setSocket] = useState();
-  const [input, setInput] = useState();
+  const [input, setInput] = useState("");
   const [prevList, setprevList] = useState([]);
   const [toggle, setToggle] = useState(false);
   const [Bar, setBar] = useState();
   const searchRef = createRef();
   const inputat = document.getElementById("filled-adornment-amount");
-
-  const chat = document.querySelectorAll(".message");
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entries) => {
-        entries.target.classList.toggle("show", entries.isIntersecting);
-      });
-    },
-    {
-      rootMargin: "-50px",
-    }
-  );
-  chat.forEach((chats) => {
-    observer.observe(chats);
-  });
 
   useEffect(() => {
     setSocket(
@@ -62,6 +47,7 @@ export default function AdminChat() {
   }, []);
   useEffect(() => {
     socket?.on("connect", () => {
+      setInput(input.toString());
       socket.on("inactive-chats", (inactiveList) => {
         setInactive(inactiveList);
       });
@@ -78,25 +64,22 @@ export default function AdminChat() {
       });
     });
   }, [socket]);
-
-  function Search(e) {
-    let filter, ul, li, a, i, txtValue, input;
-    input = document.getElementById("myInput");
-    setSearch(e.target.value);
-    console.log(search);
-    filter = searchRef.current.value;
-    ul = document.getElementById("myUL");
-    li = ul.getElementsByTagName("li");
-    for (i = 0; i < li.length; i++) {
-      a = li[i].getElementsByTagName("ListItemText")[0];
-      txtValue = a?.textContent || a?.innerHTML || a?.innerText;
-      if (txtValue?.indexOf(filter) > -1) {
-        li[i].style.display = "";
-      } else {
-        li[i].style.display = "none";
+  useEffect(() => {
+    const chat = document.querySelectorAll(".message");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entries) => {
+          entries.target.classList.toggle("show", entries.isIntersecting);
+        });
+      },
+      {
+        rootMargin: "-50px",
       }
-    }
-  }
+    );
+    chat.forEach((chats) => {
+      observer.observe(chats);
+    });
+  }, [giveChat]);
 
   //for bot
   function LastChat(chat) {
