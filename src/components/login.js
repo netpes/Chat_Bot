@@ -50,10 +50,13 @@ export default function Login() {
   async function Handler(e) {
     e.preventDefault();
     //need to state
-    const res = await axios.post("http://localhost:2000/login", {
-      email,
-      password,
-    });
+    const res = await axios.post(
+      "https://chat-bot-backend-iyvz.onrender.com/login",
+      {
+        email,
+        password,
+      }
+    );
     setUserData(res.data.id);
     setUserName(res.data.name);
     setRole(res.data.role);

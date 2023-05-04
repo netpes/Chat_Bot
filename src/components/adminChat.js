@@ -42,7 +42,9 @@ export default function AdminChat() {
 
   useEffect(() => {
     setSocket(
-      io.connect("http://localhost:2000", { transports: ["websocket"] })
+      io.connect("https://chat-bot-backend-iyvz.onrender.com", {
+        transports: ["websocket"],
+      })
     );
   }, []);
   useEffect(() => {
