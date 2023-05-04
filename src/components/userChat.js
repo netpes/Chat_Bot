@@ -42,7 +42,7 @@ export default function UserChat() {
   let prevMsg = "";
   useEffect(() => {
     setSocket(
-      io.connect("https://chat-bot-backenc.onrender.com:10000", {
+      io.connect("https://chat-bot-backenc.onrender.com", {
         transports: ["websocket"],
       })
     );
