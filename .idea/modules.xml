@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../../../github/Chat_bot_backend/.idea/Chat_bot_backend.iml" filepath="$PROJECT_DIR$/../../../github/Chat_bot_backend/.idea/Chat_bot_backend.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/chatbot.iml" filepath="$PROJECT_DIR$/.idea/chatbot.iml" />
-      <module fileurl="file://$USER_HOME$/WebstormProjects/chatbot_backend/.idea/chatbot_backend.iml" filepath="$USER_HOME$/WebstormProjects/chatbot_backend/.idea/chatbot_backend.iml" />
     </modules>
   </component>
 </project>
