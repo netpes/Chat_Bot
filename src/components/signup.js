@@ -57,7 +57,7 @@ export default function Signup() {
               component="form"
               className={"modal-content animate"}
               method={"post"}
-              action={"https://chat-bot-backend-iyvz.onrender.com/signup"}
+              action={"https://chat-bot-backenc.onrender.com/signup"}
               noValidate
               sx={{ mt: 1, border: "none" }}
             >

@@ -51,7 +51,7 @@ export default function Login() {
     e.preventDefault();
     //need to state
     const res = await axios.post(
-      "https://chat-bot-backend-iyvz.onrender.com/login",
+      "https://chat-bot-backenc.onrender.com/login",
       {
         email,
         password,
