@@ -17,7 +17,7 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-
+import Alert from "@mui/material/Alert";
 export default function Login() {
   const [role, setRole] = useState();
   const [email, setEmail] = useState();
@@ -26,6 +26,7 @@ export default function Login() {
   const [userData, setUserData] = useState();
   const { userid, setUserId } = useContext(GetData);
   const { userName, setUserName } = useContext(GetData);
+  const [error, setError] = useState(false);
 
   function Copyright(props) {
     return (
@@ -57,10 +58,15 @@ export default function Login() {
         password,
       }
     );
-    setUserData(res.data.id);
-    setUserName(res.data.name);
-    setRole(res.data.role);
-    next();
+    if (res.data.status != false) {
+      setUserData(res.data.id);
+      setUserName(res.data.name);
+      setRole(res.data.role);
+      next();
+    } else {
+      console.log(res.data);
+      setError(true);
+    }
   }
   function next() {
     setUserId(userData);
@@ -139,6 +145,7 @@ export default function Login() {
               </Grid>
             </Box>
           </Box>
+          {error && <Alert severity="error">Email or password invalid!</Alert>}
           <Copyright sx={{ mt: 8, mb: 4 }} />
         </Container>
       </ThemeProvider>
